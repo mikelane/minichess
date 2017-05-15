@@ -86,7 +86,7 @@ std::string get_move(const unsigned int piece_locations[],
   if (legal_attacks.size() || legal_moves.size()) {
     legal_attacks.insert(legal_attacks.end(), legal_moves.begin(), legal_moves.end());
     std::mt19937 r{std::random_device{}()};
-    std::shuffle(std::begin(legal_attacks), std::end(legal_attacks), r);
+    shuffle(std::begin(legal_attacks), std::end(legal_attacks), r);
     return legal_attacks[0];
   } else {
     return "ERROR";
