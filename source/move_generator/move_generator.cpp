@@ -5,6 +5,7 @@
 #include "move_generator.h"
 #include <iostream>
 #include <random>
+#include <algorithm>
 
 /**
  * The get move function returns the string that the server needs. For example a move
@@ -86,7 +87,7 @@ std::string get_move(const unsigned int piece_locations[],
   if (legal_attacks.size() || legal_moves.size()) {
     legal_attacks.insert(legal_attacks.end(), legal_moves.begin(), legal_moves.end());
     std::mt19937 r{std::random_device{}()};
-    shuffle(std::begin(legal_attacks), std::end(legal_attacks), r);
+    std::shuffle(std::begin(legal_attacks), std::end(legal_attacks), r);
     return legal_attacks[0];
   } else {
     return "ERROR";
