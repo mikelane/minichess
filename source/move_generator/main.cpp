@@ -4,8 +4,8 @@
 int main() {
   player me = BLACK;
   player opponent = WHITE;
-  std::vector<unsigned int> state = {A6, B6, C6, D6, E6, A5, B5, C5, D5, E5, A2, B2, C2, D2, E2, A1, B1, C1, D1, E1, 1,
-                                     1, 1023, 1047552};
+  std::vector<unsigned int> state = {A5, 0, 0, C3, E4, E3, 0, 0, 0, 0, A4, E2, 0, 0, 0, C1, 0, 0, 0, E1,
+                                     18, 1, 524325, 1056402394};
   unsigned int empty_cells = state.back();
   state.pop_back();
   unsigned int opponent_locs = state.back();

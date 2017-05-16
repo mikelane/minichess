@@ -251,3 +251,5 @@ ENV/
 /site
 
 # End of https://www.gitignore.io/api/c++,macos,cmake,linux,python,jetbrains
+
+settings.ini
