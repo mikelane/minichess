@@ -9,6 +9,7 @@ http://stackoverflow.com/questions/7621897/python-logging-module-globally"""
 # Imports
 import logging
 
+
 __author__ = "Michael Lane"
 __email__ = "mikelane@gmail.com"
 __copyright__ = "Copyright 2017, Michael Lane"
