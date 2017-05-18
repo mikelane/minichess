@@ -5,6 +5,7 @@
 #include "move_generator.h"
 #include <iostream>
 #include <random>
+#include <sstream>
 #include <algorithm>
 
 /**
@@ -30,7 +31,8 @@
 std::string get_move(const unsigned int piece_locations[],
                      const unsigned int on_move,
                      const unsigned int empty_locs,
-                     const unsigned int opponent_locs) {
+                     const unsigned int opponent_locs,
+                     std::string player_type) {
   unsigned int to_move_location;
 
   std::vector<std::string> legal_moves = {};
@@ -84,12 +86,29 @@ std::string get_move(const unsigned int piece_locations[],
     }
   }
 
+
   if (legal_attacks.size() || legal_moves.size()) {
-    legal_attacks.insert(legal_attacks.end(), legal_moves.begin(), legal_moves.end());
-    std::mt19937 r{std::random_device{}()};
-    std::shuffle(std::begin(legal_attacks), std::end(legal_attacks), r);
-    return legal_attacks[0];
+    if (player_type == "1") {  // Random player
+      // Combine the legal attacks and legal moves vectors
+      legal_attacks.insert(legal_attacks.end(), legal_moves.begin(), legal_moves.end());
+      // Shuffle them and return the first element. (Speed is not a problem with a random player)
+      std::mt19937 r{std::random_device{}()};
+      std::shuffle(std::begin(legal_attacks), std::end(legal_attacks), r);
+      return legal_attacks[0];
+    }
   } else {
     return "ERROR";
   }
+}
+
+/**
+ * I found this little snippet of goodness on Stack Overflow: http://stackoverflow.com/questions/236129/split-a-string-in-c
+ *
+ * @param input - A space-separated list of integers as a std::string
+ * @return A vector of unsigned ints ... the game state!
+ */
+std::vector<unsigned int> parse_input(std::string input) {
+  std::istringstream iss(input);
+  std::vector<unsigned int> results{std::istream_iterator<unsigned int>{iss}, std::istream_iterator<unsigned int>{}};
+  return results;
 }

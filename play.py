@@ -8,6 +8,7 @@ Long description
 
 import argparse
 import log
+import zmq
 from minichess.parse import parse_board
 from minichess import server
 
@@ -32,15 +33,35 @@ if args.debug:
 else:
     logger = log.setup_custom_logger('root', level=args.verbosity)
 
+
+
 if __name__ == '__main__':
+    context = zmq.Context()
+    socket = context.socket(zmq.REP)
+    socket.bind('tcp://*:5555')
+
+    message = socket.recv()
+    logger.debug('Expecting READY, received: {}'.format(message.decode()))
+
+    socket.send(b'1')
+
+    message = socket.recv()
+    logger.debug('Expecting 1, received: {}'.format(message.decode()))
+
+
     logger.debug('Testing parse function')
-    board = '''
-    1 W
-    kqbnr
-    ppppp
-    .....
-    .....
-    PPPPP
-    RNBQK'''
-    print('{}'.format(parse_board(board=board)))
+    board = '''1 W
+kqbnr
+ppppp
+.....
+.....
+PPPPP
+RNBQK'''
+    parsed_board = parse_board(board)
+    logger.debug('Sending: \n{}'.format(parsed_board))
+    socket.send(parsed_board.encode())
+
+    move = socket.recv_string()
+
+    logger.debug('Received move {}'.format(move))
 

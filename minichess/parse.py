@@ -88,7 +88,7 @@ def get_empty_locations(parsed_board: np.ndarray) -> int:
     return arr_to_int(parsed_board, '.')
 
 
-def parse_board(board: str) -> List[int]:
+def parse_board(board: str) -> str:
     """
     Take a board as a string similar to this:
     
@@ -167,9 +167,11 @@ def parse_board(board: str) -> List[int]:
         white_pieces['P'] = np.pad(white_pieces['P'], (0, 5 - white_pieces['P'].size), 'constant', constant_values=0)
 
     # Concatenate the lists into one long list and return it.
-    return list(
-        np.append(
-            np.concatenate(tuple(black_pieces.values())),
-            np.concatenate(tuple(white_pieces.values())))) + [move_number, player_number[my_color], opponent_locations,
-                                                              empty_locations]
-
+    return ' '.join(
+        list(map(str, list(
+            np.append(
+                np.concatenate(tuple(black_pieces.values())),
+                np.concatenate(tuple(white_pieces.values())))) + [move_number,
+                                                                  player_number[my_color],
+                                                                  opponent_locations,
+                                                                  empty_locations])))
