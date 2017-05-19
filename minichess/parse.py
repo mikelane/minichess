@@ -4,6 +4,7 @@
 """Minichess Board Parsing Utility"""
 
 import numpy as np
+from collections import OrderedDict
 
 __author__ = "Michael Lane"
 __email__ = "mikelane@gmail.com"
@@ -117,22 +118,26 @@ def parse_board(board):
     """
 
     # Set up an intermediate container
-    black_pieces = {'k': None, 'q': None, 'b': None, 'n': None, 'r': None, 'p': None}
-    white_pieces = {'P': None, 'R': None, 'N': None, 'B': None, 'Q': None, 'K': None}
+    black_pieces = OrderedDict()
+    for piece_type in 'kqbnrp':
+        black_pieces[piece_type] = None
+    white_pieces = OrderedDict()
+    for piece_type in 'PRNBQK':
+        white_pieces[piece_type] = None
 
     # Do the initial parsing of the board string
     # move_number, my_color, *board = board.split()
     split_board = board.split()
-    move_number, my_color, board = split_board[0], split_board[1], split_board[2:]
+    move_number, my_color, split_board = split_board[0], split_board[1], split_board[2:]
     move_number = int(move_number)
-    parsed_board = np.array([list(row) for row in board])  # numpy makes it all worth it.
+    parsed_board = np.array([list(row) for row in split_board])  # numpy makes it all worth it.
 
     # Get the 23rd and 24th values of the return list
     opponent_locations = get_opponent_locations(parsed_board, opponent_color[my_color])
     empty_locations = get_empty_locations(parsed_board)
 
     # Start filling in the intermediate container for black
-    for piece in black_pieces.keys():
+    for piece in 'kqbnrp':
         positions = np.argwhere(parsed_board == piece)  # Returns an array of 2d array locations
         if positions.size:
             black_pieces[piece] = np.apply_along_axis(lambda p: pos_to_int[tuple(p)], 1, positions)
@@ -151,7 +156,7 @@ def parse_board(board):
         black_pieces['p'] = np.pad(black_pieces['p'], (0, 5 - black_pieces['p'].size), 'constant', constant_values=0)
 
     # Second verse, same as the first. All the above, but for white.
-    for piece in white_pieces.keys():
+    for piece in 'PRNBQK':
         positions = np.argwhere(parsed_board == piece)
         if positions.size:
             white_pieces[piece] = np.apply_along_axis(lambda p: pos_to_int[tuple(p)], 1, positions)
@@ -175,3 +180,14 @@ def parse_board(board):
                                                                   player_number[my_color],
                                                                   opponent_locations,
                                                                   empty_locations])))
+
+if __name__ == '__main__':
+    board = '''1 W
+kqbnr
+ppppp
+.....
+.....
+PPPPP
+RNBQK'''
+    parsed_board = parse_board(board)
+    print(parsed_board)
