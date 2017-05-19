@@ -253,3 +253,4 @@ ENV/
 # End of https://www.gitignore.io/api/c++,macos,cmake,linux,python,jetbrains
 
 settings.ini
+/source/move_generator/bin/

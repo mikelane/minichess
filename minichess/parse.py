@@ -3,8 +3,9 @@
 
 """Minichess Board Parsing Utility"""
 
-import numpy as np
 from collections import OrderedDict
+
+import numpy as np
 
 __author__ = "Michael Lane"
 __email__ = "mikelane@gmail.com"
@@ -17,15 +18,10 @@ strings = ['{}{}'.format(c, r) for r in range(6, 0, -1) for c in 'abcde']
 ints = [1 << i for i in range(29, -1, -1)]
 
 pos_to_str = {p: s for p, s in zip(positions, strings)}
-# print(pos_to_str)
 pos_to_int = {p: i for p, i in zip(positions, ints)}
-# print(pos_to_int)
 str_to_pos = {s: p for s, p in zip(strings, positions)}
-# print(str_to_pos)
 str_to_int = {s: i for s, i in zip(strings, ints)}
-# print(str_to_int)
 int_to_str = {i: s for i, s in zip(ints, strings)}
-# print(int_to_str)
 int_to_pos = {i: p for i, p in zip(ints, positions)}
 
 opponent_color = {'B': 'W', 'W': 'B'}
@@ -118,11 +114,12 @@ def parse_board(board):
     """
 
     # Set up an intermediate container
-    black_pieces = OrderedDict()
-    for piece_type in 'kqbnrp':
+    black_pieces = OrderedDict()  # Python2's dicts aren't ordered. :-P
+    for piece_type in piece_types['B']:
         black_pieces[piece_type] = None
+
     white_pieces = OrderedDict()
-    for piece_type in 'PRNBQK':
+    for piece_type in piece_types['W']:
         white_pieces[piece_type] = None
 
     # Do the initial parsing of the board string
@@ -180,6 +177,7 @@ def parse_board(board):
                                                                   player_number[on_move_color],
                                                                   opponent_locations,
                                                                   empty_locations])))
+
 
 if __name__ == '__main__':
     board = '''1 W

@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Short description
-
-Long description
-"""
+"""Minichess AI Player"""
 
 import argparse
 
@@ -27,6 +24,8 @@ parser.add_argument('-v', '--verbosity', action='count', default=0,
                          '-vvv shows all logs')
 parser.add_argument('-p', '--player', default='random', choices=['random', 'negamax', 'ab', 'abttable'],
                     help='Specify the type of player to use')
+parser.add_argument('-i', '--interactive', action='store_true',
+                    help='Make the player interactive so you can choose what games it plays')
 args = parser.parse_args()
 
 if args.debug:
@@ -35,6 +34,7 @@ else:
     logger = log.setup_custom_logger('root', level=args.verbosity)
 
 if __name__ == '__main__':
+    # Set up binding the
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind('tcp://*:5555')

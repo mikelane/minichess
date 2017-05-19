@@ -9,10 +9,11 @@ skirmish, https://github.com/chromakode/skirmish.
 """
 from __future__ import print_function
 
-import configparser
 import logging
 import socket
 import sys
+
+import configparser
 
 __author__ = "Michael Lane"
 __email__ = "mikelane@gmail.com"

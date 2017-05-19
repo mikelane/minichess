@@ -11,7 +11,10 @@ find_library(ZeroMQ_LIBRARY
         NAMES zmq
         PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
         )
+
 set(CMAKE_CXX_STANDARD 11)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 set(SOURCE_FILES main.cpp move_generator.cpp)
 add_executable(move_generator ${SOURCE_FILES})
