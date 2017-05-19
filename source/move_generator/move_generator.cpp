@@ -43,7 +43,7 @@ std::string get_move(const unsigned int piece_locations[],
   // The piece_locations array has the locations of the 10 black players followed
   // by the location of the 10 white players. Search only one or the other for the
   // starting move location
-  int i = (on_move == 1) ? BLACK_IDX : WHITE_IDX;
+  int i = (on_move == 1) ? WHITE_IDX : BLACK_IDX;
   int end = i + 10;
 
   // Find all the moves available to each piece for the on move player

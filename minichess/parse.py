@@ -126,14 +126,14 @@ def parse_board(board):
         white_pieces[piece_type] = None
 
     # Do the initial parsing of the board string
-    # move_number, my_color, *board = board.split()
+    # move_number, on_move_color, *board = board.split()
     split_board = board.split()
-    move_number, my_color, split_board = split_board[0], split_board[1], split_board[2:]
+    move_number, on_move_color, split_board = split_board[0], split_board[1], split_board[2:]
     move_number = int(move_number)
     parsed_board = np.array([list(row) for row in split_board])  # numpy makes it all worth it.
 
     # Get the 23rd and 24th values of the return list
-    opponent_locations = get_opponent_locations(parsed_board, opponent_color[my_color])
+    opponent_locations = get_opponent_locations(parsed_board, opponent_color[on_move_color])
     empty_locations = get_empty_locations(parsed_board)
 
     # Start filling in the intermediate container for black
@@ -177,7 +177,7 @@ def parse_board(board):
             np.append(
                 np.concatenate(tuple(black_pieces.values())),
                 np.concatenate(tuple(white_pieces.values())))) + [move_number,
-                                                                  player_number[my_color],
+                                                                  player_number[on_move_color],
                                                                   opponent_locations,
                                                                   empty_locations])))
 
