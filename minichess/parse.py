@@ -3,8 +3,6 @@
 
 """Minichess Board Parsing Utility"""
 
-from typing import List
-
 import numpy as np
 
 __author__ = "Michael Lane"
@@ -34,7 +32,7 @@ player_number = {'W': 1, 'B': 2}
 piece_types = {'B': 'kqbnrp', 'W': 'KQBNRP'}
 
 
-def arr_to_int(parsed_board: np.ndarray, piece_types: str) -> int:
+def arr_to_int(parsed_board, piece_types):
     """
     Given a parsed board and a string of piece types, return an integer that represents
     those locations. Location a6 is bit 29, a6 is bit 28, ... , E1 is bit 1.
@@ -56,7 +54,7 @@ def arr_to_int(parsed_board: np.ndarray, piece_types: str) -> int:
     return eval('0b{}'.format(str(result.astype(np.int).ravel())[1:-1].replace(' ', '')))
 
 
-def get_opponent_locations(parsed_board: np.ndarray, color_of_opponent: str) -> int:
+def get_opponent_locations(parsed_board, color_of_opponent):
     """
     A utility function that uses arr_to_int to return the appropriate value
     
@@ -74,7 +72,7 @@ def get_opponent_locations(parsed_board: np.ndarray, color_of_opponent: str) -> 
     return arr_to_int(parsed_board, piece_types[color_of_opponent])
 
 
-def get_empty_locations(parsed_board: np.ndarray) -> int:
+def get_empty_locations(parsed_board):
     """
     A wrapper for arr_to_int that passes the empty cell string, '.'
     Parameters
@@ -88,7 +86,7 @@ def get_empty_locations(parsed_board: np.ndarray) -> int:
     return arr_to_int(parsed_board, '.')
 
 
-def parse_board(board: str) -> str:
+def parse_board(board):
     """
     Take a board as a string similar to this:
     
@@ -123,7 +121,9 @@ def parse_board(board: str) -> str:
     white_pieces = {'P': None, 'R': None, 'N': None, 'B': None, 'Q': None, 'K': None}
 
     # Do the initial parsing of the board string
-    move_number, my_color, *board = board.split()
+    # move_number, my_color, *board = board.split()
+    split_board = board.split()
+    move_number, my_color, board = split_board[0], split_board[1], split_board[2:]
     move_number = int(move_number)
     parsed_board = np.array([list(row) for row in board])  # numpy makes it all worth it.
 

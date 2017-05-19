@@ -7,18 +7,31 @@ This class manages the connection to the server as well as sending
 and formatting the IO. This code was inspired in part by chromakode
 skirmish, https://github.com/chromakode/skirmish.
 """
+from __future__ import print_function
 
 import configparser
 import logging
 import socket
+import sys
 
 __author__ = "Michael Lane"
 __email__ = "mikelane@gmail.com"
 __copyright__ = "Copyright 2017, Michael Lane"
 __license__ = "MIT"
 
+if sys.version_info[:2] < (3,3):
+    python_version = 2
+else:
+    python_version = 3
 
 class Server:
+    imcs_socket = socket.socket()
+    try:
+        imcs_stream = imcs_socket.makefile(mode='rw', newline='\r\n')
+    except TypeError:
+        imcs_stream = imcs_socket.makefile(mode='rw', bufsize=0)
+
+
     def __init__(self):
         self.logger = logging.getLogger('root')
         # Server and Player info MUST be stored in a settings.ini file in the root dir.
@@ -28,8 +41,6 @@ class Server:
         self.port = int(config['SERVER']['port'])
         self.username = config['PLAYER']['username']
         self.password = config['PLAYER']['password']
-        self.imcs_socket = socket.socket()
-        self.imcs_stream = None
 
     def __enter__(self):
         """
@@ -44,9 +55,8 @@ class Server:
         :return: self
         """
         self.imcs_socket.connect((self.host, self.port))
-        self.imcs_stream = self.imcs_socket.makefile(mode='rw', newline='\r\n')
         self.logger.info(self.imcs_stream.readline())
-        print('me {} {}'.format(self.username, self.password), file=self.imcs_stream, flush=True)
+        self.send('me {} {}'.format(self.username, self.password))
         self.logger.info(self.imcs_stream.readline())
         return self
 
@@ -59,15 +69,22 @@ class Server:
         :param exc_tb: 
         :return: None
         """
-        print('quit', file=self.imcs_stream, flush=True)
+        self.send('quit')
         self.imcs_stream.close()
+
+    @classmethod
+    def send(cls, command):
+        if python_version == 3:
+            print(command, file=cls.imcs_stream, flush=True)
+        else:
+            print(command, file=cls.imcs_stream)
 
     def get_help(self):
         """
         Send the command 'help' to the server and log the response
         :return: None
         """
-        print('help', file=self.imcs_stream, flush=True)
+        self.send('help')
         data = self.imcs_stream.readline().rstrip()
         while data:
             self.logger.info(data)
@@ -82,7 +99,7 @@ class Server:
         :return: None 
         """
         games = {}
-        print('list', file=self.imcs_stream, flush=True)
+        self.send('list')
         data = self.imcs_stream.readline().rstrip()
         self.logger.info(data)
         while data:
@@ -105,10 +122,10 @@ class Server:
     def offer_game(self, color='?', duration=None):
         if duration:
             self.logger.info('Offering color {} and duration {}'.format(color, duration))
-            print('offer {} {}'.format(color, duration), file=self.imcs_stream, flush=True)
+            self.send('offer {} {}'.format(color, duration))
         else:
             self.logger.info('Offering color {}'.format(color))
-            print('offer {}'.format(color), file=self.imcs_stream, flush=True)
+            self.send('offer {}'.format(color))
         message = self.imcs_stream.readline().rstrip()
         assert message[:3] == '103'
         while True:
@@ -128,6 +145,7 @@ class Server:
 
 if __name__ == '__main__':
     import log
+
     logger = log.setup_custom_logger('root', level=5)
     with Server() as s:
         s.get_help()

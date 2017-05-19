@@ -7,10 +7,11 @@ Long description
 """
 
 import argparse
-import log
+
 import zmq
+
+from minichess import log
 from minichess.parse import parse_board
-from minichess import server
 
 __author__ = "Michael Lane"
 __email__ = "mikelane@gmail.com"
@@ -33,8 +34,6 @@ if args.debug:
 else:
     logger = log.setup_custom_logger('root', level=args.verbosity)
 
-
-
 if __name__ == '__main__':
     context = zmq.Context()
     socket = context.socket(zmq.REP)
@@ -47,7 +46,6 @@ if __name__ == '__main__':
 
     message = socket.recv()
     logger.debug('Expecting 1, received: {}'.format(message.decode()))
-
 
     logger.debug('Testing parse function')
     board = '''1 W
@@ -64,4 +62,3 @@ RNBQK'''
     move = socket.recv_string()
 
     logger.debug('Received move {}'.format(move))
-

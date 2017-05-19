@@ -16,7 +16,7 @@ __copyright__ = "Copyright 2017, Michael Lane"
 __license__ = "MIT"
 
 
-def setup_custom_logger(name:str, level:int) -> logging.Logger:
+def setup_custom_logger(name, level):
     formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
     handler = logging.StreamHandler()
