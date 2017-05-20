@@ -43,6 +43,7 @@ class Server:
         self.port = int(config['SERVER']['port'])
         self.username = config['PLAYER']['username']
         self.password = config['PLAYER']['password']
+        self.color = None
 
     def __enter__(self):
         """
@@ -138,10 +139,14 @@ class Server:
         assert info_line[:3] in ['105', '106']
 
         if '105' in info_line:  # I am White
+            self.logger.info('Playing as White')
+            self.color = 'W'
             self.imcs_stream.readline()  # Blank line
         elif '106' in info_line:  # I am Black
+            self.logger.info('Playing as Black')
+            self.color = 'B'
             opponent_move = self.imcs_stream.readline().strip()  # this may block
-            self.imcs_stream.readline()  # Blank line
+            self.imcs_stream.readline()  # blank line
 
         # Read the board
         board = ""
@@ -181,15 +186,26 @@ class Server:
     def send_move(self, move):
         self.logger.info('Sending move: {}'.format(move))
         self.send(move)
+
         # @todo keep track of opponent's moves
-        o = self.imcs_stream.readline().strip()  # opponents move
-        self.logger.debug('Should be opponents move: {}'.format(o))
-        b = self.imcs_stream.readline()  # blank line
-        self.logger.debug('Should be blank: {}'.format(b))
+        opponent_move = self.imcs_stream.readline().strip()  # opponent's move
+        assert 'illegal move' not in opponent_move
+        self.logger.debug('Should be opponents move: {}'.format(opponent_move))
+
+        b = self.imcs_stream.readline()  # blank or win message
+        if 'wins' in b:
+            if self.color in b:
+                self.logger.log('YOU WON!')
+            else:
+                self.logger.log('You lost')
+            datetime.time.sleep(1)
+            return "GAME OVER", 0
+
         board = ""
         for _ in range(7):
             board += self.imcs_stream.readline()
         self.imcs_stream.readline()  # blank line
+
         # Parse the timer and get my time left in milliseconds
         my_time = re.split('\D', self.imcs_stream.readline().strip().split()[1])
         time_left = datetime.timedelta(minutes=float(my_time[0]), seconds=float(my_time[1]), milliseconds=float(my_time[2]))

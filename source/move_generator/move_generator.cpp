@@ -172,15 +172,8 @@ State_t make_move(State_t state, int mover_index, int dest_pos) {
   return state;
 }
 
-int counter = 0;
-
-double alpha_Beta(state_value & state, int depth, double alpha, double beta, state_value & chosen_state) {
+double alpha_Beta(state_value & state, int depth, double alpha, double beta, int & node_count) {
   if (depth == 0) {
-//    chosen_state = {
-//        state.value,
-//        state.move_string,
-//        state.state
-//    };
     return state.value;
   }
 
@@ -190,7 +183,7 @@ double alpha_Beta(state_value & state, int depth, double alpha, double beta, sta
   while(!ordered_child_states.empty()) {
     state_value next_state = ordered_child_states.top();
     ordered_child_states.pop();
-    double value = -alpha_Beta(next_state, depth - 1, -beta, -alpha, chosen_state);
+    double value = -alpha_Beta(next_state, depth - 1, -beta, -alpha, ++node_count);
     best_value = std::max(best_value, value);
     alpha = std::max(alpha, value);
     if(alpha >= beta) {
@@ -198,7 +191,6 @@ double alpha_Beta(state_value & state, int depth, double alpha, double beta, sta
     }
   }
 
-  state.value = best_value;
   return best_value;
 }
 

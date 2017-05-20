@@ -88,18 +88,24 @@ if __name__ == '__main__':
             logger.debug('Received this board: \n{}'.format(board))
             logger.debug('Have this many milliseconds left: {}'.format(time_left))
 
-            # Parse the board and send it to the move generator
-            parsed_board = parse_board(board, time_left)
-            logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
-            socket.send(parsed_board)
-            move = socket.recv()
-            logger.debug('Move generator send this move: {}'.format(move))
+            # Begin the game loop
+            counter = 40
+            while counter > 0:
+                # Parse the board and send it to the move generator
+                parsed_board = parse_board(board, time_left)
+                logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
+                socket.send(parsed_board)
+                move = socket.recv()
+                logger.debug('Move generator send this move: {}'.format(move))
 
-            # Send the move along and get the next board
-            board, time = s.send_move(move)
-            logger.debug('Received this board:\n{}'.format(board))
-            logger.debug('Have this many milliseconds left: {}'.format(time_left))
+                # Send the move along and get the next board
+                board, time = s.send_move(move)
+                if board == "GAME OVER":
+                    logger.debug('Game Over. shutting down')
+                    socket.send('QUIT')
+                    break
+                logger.debug('Received this board:\n{}'.format(board))
+                logger.debug('Have this many milliseconds left: {}'.format(time_left))
+                counter -= 1
 
-            # Send resign
-            s.send_resign()
 

@@ -2,66 +2,66 @@
 
 PROGNAME=$(basename $0)
 
-usage () {
-    echo "$PROGNAME: usage: ./$PROGNAME [-h] [--debug] [-p {random,negamax,ab,abttable}] [--interactive]"
-    echo -e "\noptional arguments:
-  -h, --help            show this help message and exit
-  --debug               Turn on debugging mode
-  -v, --verbosity       Increase output verbosity, blank shows ERROR only, -v
-                        shows INFO and ERROR, -vv shows WARNING, INFO, and
-                        ERROR, and -vvv shows all logs
-  -p {random,negamax,ab,abttable}, --player {random,negamax,ab,abttable}
-                        Specify the type of player to use
-  --interactive         Make the player interactive so you can choose what
-                        games it plays"
-    return
-}
+#usage () {
+#    echo "$PROGNAME: usage: ./$PROGNAME [-h] [--debug] [-p {random,negamax,ab,abttable}] [--interactive]"
+#    echo -e "\noptional arguments:
+#  -h, --help            show this help message and exit
+#  --debug               Turn on debugging mode
+#  -v, --verbosity       Increase output verbosity, blank shows ERROR only, -v
+#                        shows INFO and ERROR, -vv shows WARNING, INFO, and
+#                        ERROR, and -vvv shows all logs
+#  -p {random,negamax,ab,abttable}, --player {random,negamax,ab,abttable}
+#                        Specify the type of player to use
+#  --interactive         Make the player interactive so you can choose what
+#                        games it plays"
+#    return
+#}
 
 opts=$@
 
-# Process command line options
-debug=
-player=
-interactive=
-verbosity=
-
-while [[ -n $1 ]]; do
-    case $1 in
-        -h | --help)            usage
-                                exit
-                                ;;
-        -d | --debug)           shift
-                                debug=1
-                                ;;
-        -p | --player)          shift
-                                player=$1
-                                ;;
-        -i | --interactive)     shift
-                                interactive=1
-                                ;;
-        # This is so caveman...
-        -v)                     shift
-                                verbosity=1
-                                ;;
-        -vv)                    shift
-                                verbosity=2
-                                ;;
-        -vvv)                   shift
-                                verbosity=3
-                                ;;
-        -vvvv)                  shift
-                                verbosity=4
-                                ;;
-        -vvvvv)                 shift
-                                verbosity=5
-                                debug=1
-                                ;;
-        *)                      usage
-                                exit 1
-                                ;;
-    esac
-    shift
-done
+## Process command line options
+#debug=
+#player=
+#interactive=
+#verbosity=
+#
+#while [[ -n $1 ]]; do
+#    case $1 in
+#        -h | --help)            usage
+#                                exit
+#                                ;;
+#        -d | --debug)           shift
+#                                debug=1
+#                                ;;
+#        -p | --player)          shift
+#                                player=$1
+#                                ;;
+#        -i | --interactive)     shift
+#                                interactive=1
+#                                ;;
+#        # This is so caveman...
+#        -v)                     shift
+#                                verbosity=1
+#                                ;;
+#        -vv)                    shift
+#                                verbosity=2
+#                                ;;
+#        -vvv)                   shift
+#                                verbosity=3
+#                                ;;
+#        -vvvv)                  shift
+#                                verbosity=4
+#                                ;;
+#        -vvvvv)                 shift
+#                                verbosity=5
+#                                debug=1
+#                                ;;
+#        *)                      usage
+#                                exit 1
+#                                ;;
+#    esac
+#    shift
+#done
 
 
 nohup ./source/move_generator/bin/move_generator >>logs/coutput.log 2>&1 &
