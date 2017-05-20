@@ -35,13 +35,14 @@ else:
     logger = log.setup_custom_logger('root', level=args.verbosity)
 
 if __name__ == '__main__':
+    logger.info('\n====== GAME BEGIN =====\n')
     # Set up the IPC
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind('tcp://*:5555')
 
     # Handshake with receiver passing the type of player
-    message = socket.recv()
+    message = str(socket.recv().decode())
     logger.debug('Expecting READY, received: {}'.format(message.decode()))
 
     if args.player == 'random':
@@ -57,7 +58,7 @@ if __name__ == '__main__':
         raise ValueError('Invalid player type selected')
 
     socket.send(player_type.encode())
-    message = socket.recv()
+    message = str(socket.recv().decode())
     logger.debug('Expecting {}, received: {}'.format(player_type, message.decode()))
 
     # Get a listing of available players
@@ -94,18 +95,26 @@ if __name__ == '__main__':
                 # Parse the board and send it to the move generator
                 parsed_board = parse_board(board, time_left)
                 logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
-                socket.send(parsed_board)
-                move = socket.recv()
+                socket.send(parsed_board.encode())
+                move = str(str(socket.recv().decode()))
                 logger.debug('Move generator send this move: {}'.format(move))
 
                 # Send the move along and get the next board
-                board, time = s.send_move(move)
+                try:
+                    board, time = s.send_move(move)
+                except AssertionError as e:
+                    logger.error('AssertionError'.format(e.message))
+                    socket.send('QUIT')
+                    logger.error('SHUTTING DOWN')
+                    break
+
                 if board == "GAME OVER":
-                    logger.debug('Game Over. shutting down')
+                    logger.debug('Game Over. Shutting down')
                     socket.send('QUIT')
                     break
                 logger.debug('Received this board:\n{}'.format(board))
                 logger.debug('Have this many milliseconds left: {}'.format(time_left))
                 counter -= 1
 
+    logger.info('\n======== GAME OVER ========\n')
 

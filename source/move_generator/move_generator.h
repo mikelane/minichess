@@ -1161,9 +1161,9 @@ State_t parse_input(std::string);
 
 Ordered_States_t get_ordered_children(State_t state);
 
-State_t make_attack(State_t state, int attacker_index, int target_index);
+State_t make_attack(const State_t & state, int attacker_index, int target_index);
 
-State_t make_move(State_t state, int mover_index, int dest_pos);
+State_t make_move(const State_t & state, int mover_index, int dest_pos);
 
 double alpha_Beta(state_value & state, int depth, double alpha, double beta, int & node_count);
 

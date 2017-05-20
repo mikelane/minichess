@@ -92,7 +92,7 @@ Ordered_States_t get_ordered_children(State_t state) {
           for (; target_index < 20 && pos != state[target_index]; ++target_index);
           State_t child_state = make_attack(state, my_index, target_index);
           state_value value = {
-              -evaluate_state(child_state),
+              evaluate_state(child_state),
               move_string + TO_STR[pos],
               child_state
           };
@@ -105,7 +105,7 @@ Ordered_States_t get_ordered_children(State_t state) {
         if (pos & empty_locs & shadows) {
           State_t child_state = make_move(state, my_index, pos);
           state_value value = {
-              -evaluate_state(child_state),
+              evaluate_state(child_state),
               move_string + TO_STR[pos],
               child_state
           };
@@ -118,58 +118,60 @@ Ordered_States_t get_ordered_children(State_t state) {
   return result;
 }
 
-State_t make_attack(State_t state, int attacker_index, int target_index) {
+State_t make_attack(const State_t & state, int attacker_index, int target_index) {
+  State_t result = state;
   // xor attacker with itself, zeros it
-  state[attacker_index] ^= state[attacker_index];
+  result[attacker_index] ^= result[attacker_index];
   // xor attacker with target moves the attacker
-  state[attacker_index] ^= state[target_index];
+  result[attacker_index] ^= result[target_index];
   // xor target with itself zeros it
-  state[target_index] ^= state[target_index];
+  result[target_index] ^= result[target_index];
 
   // Bookkeeping. Update the player on move. Update the opponents location. Update the empty cells
-  state[21] = opponent[state[21]];
-  state[22] ^= state[22];  // zero opponents locations
-//  int opponent_index = opponent_player_index[state[21]];
+  result[21] = opponent[result[21]];
+  result[22] ^= result[22];  // zero opponents locations
+//  int opponent_index = opponent_player_index[result[21]];
 //  int end = opponent_index + 10;
-  for (int opponent_index = opponent_player_index[state[21]], end = opponent_index + 10;
+  for (int opponent_index = opponent_player_index[result[21]], end = opponent_index + 10;
        opponent_index < end; ++opponent_index) {
-    state[22] |= state[opponent_index];
+    result[22] |= result[opponent_index];
   }
   // Update the location of the empty cells (negation of all cells with pieces)
-  state[23] ^= state[23];
+  result[23] ^= result[23];
   for (int i = 0; i < 20; ++i) {
-    state[23] |= state[i];
+    result[23] |= result[i];
   }
   // Since we're dealing with 32 bit ints, don't forget to mask off the top 2 bits
-  state[23] = ~state[23] & ((1 << 30) - 1);
+  result[23] = ~result[23] & ((1 << 30) - 1);
 
-  return state;
+  return result;
 }
 
-State_t make_move(State_t state, int mover_index, int dest_pos) {
+State_t make_move(const State_t & state, int mover_index, int dest_pos) {
+  State_t result = state;
   // xor state[mover_index] with itself to clear it.
-  state[mover_index] ^= state[mover_index];
+  result[mover_index] ^= result[mover_index];
   // xor state[mover_index] with destination position to make the move
-  state[mover_index] ^= dest_pos;
+  result[mover_index] ^= dest_pos;
 
   // Bookkeeping, same as make_attack
-  state[21] = opponent[state[21]];
-  state[22] ^= state[22];  // zero opponents locations
+  result[21] = opponent[state[21]];
+  result[22] ^= result[22];  // zero opponents locations
 //  int opponent_index = opponent_player_index[state[21]];
 //  int end = opponent_index + 10;
   for (int opponent_index = opponent_player_index[state[21]], end = opponent_index + 10;
        opponent_index < end; ++opponent_index) {
-    state[22] |= state[opponent_index];
+    result[22] |= result[opponent_index];
   }
   // Update the location of the empty cells (negation of all cells with pieces)
-  state[23] ^= state[23];
+  result[23] ^= result[23];
   for (int i = 0; i < 20; ++i) {
-    state[23] |= state[i];
+    result[23] |= result[i];
   }
   // Since we're dealing with 32 bit ints, don't forget to mask off the top 2 bits
-  state[23] = ~state[23] & ((1 << 30) - 1);
+  result[23] = ~result[23] & ((1 << 30) - 1);
 
-  return state;
+  return result;
 }
 
 double alpha_Beta(state_value & state, int depth, double alpha, double beta, int & node_count) {

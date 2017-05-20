@@ -30,7 +30,7 @@ else:
 class Server:
     imcs_socket = socket.socket()
     try:
-        imcs_stream = imcs_socket.makefile(mode='rw', newline='\r\n')
+        imcs_stream = imcs_socket.makefile(mode='rw', buffersize=0)
     except TypeError:
         imcs_stream = imcs_socket.makefile(mode='rw', bufsize=0)
 
@@ -141,22 +141,31 @@ class Server:
         if '105' in info_line:  # I am White
             self.logger.info('Playing as White')
             self.color = 'W'
-            self.imcs_stream.readline()  # Blank line
+            b = self.imcs_stream.readline()  # Blank line
+            self.logger.debug('Expecting blank. Received: {}'.format(b))
         elif '106' in info_line:  # I am Black
             self.logger.info('Playing as Black')
             self.color = 'B'
             opponent_move = self.imcs_stream.readline().strip()  # this may block
-            self.imcs_stream.readline()  # blank line
+            self.logger.debug('Expecting opponent move. Received {}'.format(opponent_move))
+            b = self.imcs_stream.readline()  # blank line
+            self.logger.debug('Expecting blank line. Received {}'.format(b))
 
         # Read the board
-        board = ""
-        for _ in range(7):
-            board += self.imcs_stream.readline()
-
-        self.imcs_stream.readline()  # Blank line
+        self.logger.debug('Attempting to read the board')
+        board = ''
+        timer_string = ''
+        keep_reading = True
+        while keep_reading:
+            line = self.imcs_stream.readline()
+            if line[0] == '?':
+                timer_string = line.strip()
+                keep_reading = False
+            else:
+                board += line
 
         # Parse the timer and get my time left in milliseconds
-        my_time = re.split('\D', self.imcs_stream.readline().strip().split()[1])
+        my_time = re.split('\D', timer_string.split()[1])
         time_left = datetime.timedelta(minutes=float(my_time[0]), seconds=float(my_time[1]), milliseconds=float(my_time[2]))
         return board, int(time_left.total_seconds() * 1000)
 
@@ -189,6 +198,7 @@ class Server:
 
         # @todo keep track of opponent's moves
         opponent_move = self.imcs_stream.readline().strip()  # opponent's move
+        self.logger.debug('Expecting opponent move string. Received {}'.format(opponent_move))
         assert 'illegal move' not in opponent_move
         self.logger.debug('Should be opponents move: {}'.format(opponent_move))
 

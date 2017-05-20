@@ -183,11 +183,11 @@ def parse_board(board, time_left):
 
 if __name__ == '__main__':
     board = '''2 W
-kqbnr
-p.pp.
-..P.p
-PQ...
-.P.PP
-RNB.K'''
+kqb.r
+ppppp
+..n..
+P....
+.PPPP
+RNBQK'''
     parsed_board = parse_board(board, 268327)
     print(parsed_board)
