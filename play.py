@@ -9,6 +9,7 @@ import zmq
 
 from minichess import log
 from minichess.parse import parse_board
+from minichess.server import Server
 
 __author__ = "Michael Lane"
 __email__ = "mikelane@gmail.com"
@@ -34,31 +35,71 @@ else:
     logger = log.setup_custom_logger('root', level=args.verbosity)
 
 if __name__ == '__main__':
-    # Set up binding the
+    # Set up the IPC
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind('tcp://*:5555')
 
+    # Handshake with receiver passing the type of player
     message = socket.recv()
     logger.debug('Expecting READY, received: {}'.format(message.decode()))
 
-    socket.send(b'1')
+    if args.player == 'random':
+        player_type = '1'
+    elif args.player == 'negamax':
+        player_type = '2'
+    elif args.player == 'ab':
+        player_type = '3'
+    elif args.player == 'abttable':
+        player_type = '4'
+    else:
+        socket.send(b'DIE')
+        raise ValueError('Invalid player type selected')
 
+    socket.send(player_type.encode())
     message = socket.recv()
-    logger.debug('Expecting 1, received: {}'.format(message.decode()))
+    logger.debug('Expecting {}, received: {}'.format(player_type, message.decode()))
 
-    logger.debug('Testing parse function')
-    board = '''1 W
-kqbnr
-ppppp
-.....
-.....
-PPPPP
-RNBQK'''
-    parsed_board = parse_board(board)
-    logger.debug('Sending: \n{}'.format(parsed_board))
-    socket.send(parsed_board.encode())
+    # Get a listing of available players
+    with Server() as s:
+        available_games = s.list_games()
+        game_found = False
 
-    move = socket.recv_string()
+        while available_games and not game_found:
+            print('\nThe following games are available:')
+            for i, game in enumerate(available_games, start=1):
+                print(' {}. {}'.format(i, game))
 
-    logger.debug('Received move {}'.format(move))
+            chosen_game = int(input("Pick a game: "))
+            chosen_game -= 1
+
+            if 0 <= chosen_game < len(available_games):
+                logger.debug('Valid choice, continuing')
+                game_found = True
+            else:
+                game_found = False
+                logger.info('That input did not make sense. Try again')
+
+            game = available_games[chosen_game].split()
+            logger.info('Accepting game {} against {}'.format(game[0], game[1]))
+
+            # Accept the game and block until the game board arrives
+            board, time_left = s.accept_game(game[0])
+            logger.debug('Received this board: \n{}'.format(board))
+            logger.debug('Have this many milliseconds left: {}'.format(time_left))
+
+            # Parse the board and send it to the move generator
+            parsed_board = parse_board(board, time_left)
+            logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
+            socket.send(parsed_board)
+            move = socket.recv()
+            logger.debug('Move generator send this move: {}'.format(move))
+
+            # Send the move along and get the next board
+            board, time = s.send_move(move)
+            logger.debug('Received this board:\n{}'.format(board))
+            logger.debug('Have this many milliseconds left: {}'.format(time_left))
+
+            # Send resign
+            s.send_resign()
+

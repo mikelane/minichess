@@ -26,7 +26,7 @@ int_to_pos = {i: p for i, p in zip(ints, positions)}
 
 opponent_color = {'B': 'W', 'W': 'B'}
 player_number = {'W': 1, 'B': 2}
-piece_types = {'B': 'kqbnrp', 'W': 'KQBNRP'}
+piece_types = {'B': 'kqbnrp', 'W': 'PRNBQK'}
 
 
 def arr_to_int(parsed_board, piece_types):
@@ -83,7 +83,7 @@ def get_empty_locations(parsed_board):
     return arr_to_int(parsed_board, '.')
 
 
-def parse_board(board):
+def parse_board(board, time_left):
     """
     Take a board as a string similar to this:
     
@@ -95,11 +95,12 @@ def parse_board(board):
         .PPP.
         R.BQK
     
-    and convert it into a list of 24 integers that make up a minichess bitboard.
+    and convert it into a list of 25 integers that make up a minichess bitboard.
     
     Parameters
     ----------
     board: This is the string value of the board
+    time_left: An int of the number of milliseconds left to go.
 
     Returns
     -------
@@ -176,16 +177,17 @@ def parse_board(board):
                 np.concatenate(tuple(white_pieces.values())))) + [move_number,
                                                                   player_number[on_move_color],
                                                                   opponent_locations,
-                                                                  empty_locations])))
+                                                                  empty_locations,
+                                                                  time_left])))
 
 
 if __name__ == '__main__':
-    board = '''1 W
+    board = '''2 W
 kqbnr
-ppppp
-.....
-.....
-PPPPP
-RNBQK'''
-    parsed_board = parse_board(board)
+p.pp.
+..P.p
+PQ...
+.P.PP
+RNB.K'''
+    parsed_board = parse_board(board, 268327)
     print(parsed_board)

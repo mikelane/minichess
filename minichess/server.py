@@ -12,18 +12,20 @@ from __future__ import print_function
 import logging
 import socket
 import sys
-
+import datetime
 import configparser
+import re
 
 __author__ = "Michael Lane"
 __email__ = "mikelane@gmail.com"
 __copyright__ = "Copyright 2017, Michael Lane"
 __license__ = "MIT"
 
-if sys.version_info[:2] < (3,3):
+if sys.version_info[:2] < (3, 3):
     python_version = 2
 else:
     python_version = 3
+
 
 class Server:
     imcs_socket = socket.socket()
@@ -32,12 +34,11 @@ class Server:
     except TypeError:
         imcs_stream = imcs_socket.makefile(mode='rw', bufsize=0)
 
-
     def __init__(self):
         self.logger = logging.getLogger('root')
         # Server and Player info MUST be stored in a settings.ini file in the root dir.
         config = configparser.ConfigParser()
-        config.read('../settings.ini')
+        config.read('settings.ini')
         self.host = config['SERVER']['host']
         self.port = int(config['SERVER']['port'])
         self.username = config['PLAYER']['username']
@@ -70,6 +71,7 @@ class Server:
         :param exc_tb: 
         :return: None
         """
+        self.logger.info('Disconnecting from IMCS')
         self.send('quit')
         self.imcs_stream.close()
 
@@ -79,6 +81,7 @@ class Server:
             print(command, file=cls.imcs_stream, flush=True)
         else:
             print(command, file=cls.imcs_stream)
+            cls.imcs_stream.flush()
 
     def get_help(self):
         """
@@ -97,28 +100,60 @@ class Server:
     def list_games(self):
         """
         Send the command 'list' to the server and log the results.
-        :return: None 
+        :return: List of strings of results
         """
-        games = {}
+        results = []
         self.send('list')
         data = self.imcs_stream.readline().rstrip()
         self.logger.info(data)
+
         while data:
             data = self.imcs_stream.readline().rstrip()
-            self.logger.info(data)
-            parsed_data = data.split()
-            if parsed_data[-1] == '[offer]':
-                games[parsed_data[0]] = {
-                    'opponent name': parsed_data[1],
-                    'offered color': parsed_data[2],
-                    'my time': parsed_data[3],
-                    'opponent time': parsed_data[4],
-                    'opponent rank': parsed_data[5],
-                    'status': parsed_data[6]
-                }
-            if data == '.':
-                self.logger.info(data)
-                return games
+            self.logger.debug(data)
+            if '[offer]' in data:
+                results.append(data)
+            elif data == '.':
+                self.logger.debug(data)
+                return results
+
+    def accept_game(self, game_number, color=None):
+        """
+        Accept the game with the passed in game number
+        
+        Parameters
+        ----------
+        game_number The number of the game to accept
+
+        Returns
+        -------
+        Tuple of Board string and float number of milliseconds left on the timer 
+
+        """
+        if color:
+            self.send('accept {} {}'.format(game_number, color))
+        else:
+            self.send('accept {}'.format(game_number))
+
+        info_line = self.imcs_stream.readline().strip()
+        assert info_line[:3] in ['105', '106']
+
+        if '105' in info_line:  # I am White
+            self.imcs_stream.readline()  # Blank line
+        elif '106' in info_line:  # I am Black
+            opponent_move = self.imcs_stream.readline().strip()  # this may block
+            self.imcs_stream.readline()  # Blank line
+
+        # Read the board
+        board = ""
+        for _ in range(7):
+            board += self.imcs_stream.readline()
+
+        self.imcs_stream.readline()  # Blank line
+
+        # Parse the timer and get my time left in milliseconds
+        my_time = re.split('\D', self.imcs_stream.readline().strip().split()[1])
+        time_left = datetime.timedelta(minutes=float(my_time[0]), seconds=float(my_time[1]), milliseconds=float(my_time[2]))
+        return board, int(time_left.total_seconds() * 1000)
 
     def offer_game(self, color='?', duration=None):
         if duration:
@@ -142,6 +177,27 @@ class Server:
                     opponent_move = self.imcs_stream.readline().rstrip()[2:]
                     self.imcs_stream.readline()  # blank line
                     return opponent_move, self.imcs_stream.readline().rstrip()
+
+    def send_move(self, move):
+        self.logger.info('Sending move: {}'.format(move))
+        self.send(move)
+        # @todo keep track of opponent's moves
+        o = self.imcs_stream.readline().strip()  # opponents move
+        self.logger.debug('Should be opponents move: {}'.format(o))
+        b = self.imcs_stream.readline()  # blank line
+        self.logger.debug('Should be blank: {}'.format(b))
+        board = ""
+        for _ in range(7):
+            board += self.imcs_stream.readline()
+        self.imcs_stream.readline()  # blank line
+        # Parse the timer and get my time left in milliseconds
+        my_time = re.split('\D', self.imcs_stream.readline().strip().split()[1])
+        time_left = datetime.timedelta(minutes=float(my_time[0]), seconds=float(my_time[1]), milliseconds=float(my_time[2]))
+        return board, int(time_left.total_seconds() * 1000)
+
+    def send_resign(self):
+        self.logger.info('Resigning the game')
+        self.send('resign')
 
 
 if __name__ == '__main__':

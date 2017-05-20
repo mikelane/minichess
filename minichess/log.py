@@ -17,23 +17,29 @@ __license__ = "MIT"
 
 
 def setup_custom_logger(name, level):
-    formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
-
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-
     logger = logging.getLogger(name=name)
 
-    if level >= 4:
-        logger.setLevel(logging.DEBUG)
-    elif level == 3:
-        logger.setLevel(logging.INFO)
-    elif level == 2:
-        logger.setLevel(logging.WARNING)
-    elif level == 1:
-        logger.setLevel(logging.ERROR)
-    else:
-        logger.setLevel(logging.CRITICAL)
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
-    logger.addHandler(handler)
+    file_handler = logging.FileHandler('logs/pyoutput.log')
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.DEBUG)  # Always log debug information
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    if level >= 4:
+        stream_handler.setLevel(logging.DEBUG)
+    elif level == 3:
+        stream_handler.setLevel(logging.INFO)
+    elif level == 2:
+        stream_handler.setLevel(logging.WARNING)
+    elif level == 1:
+        stream_handler.setLevel(logging.ERROR)
+    else:
+        stream_handler.setLevel(logging.CRITICAL)
+
+
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
     return logger

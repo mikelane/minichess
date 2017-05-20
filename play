@@ -64,8 +64,10 @@ while [[ -n $1 ]]; do
 done
 
 
-nohup python3 play.py $opts >>logs/pyoutput.log 2>&1 &
+nohup ./source/move_generator/bin/move_generator >>logs/coutput.log 2>&1 &
+echo "MOVE GENERATOR PID: $!"
+echo -e "---------------------------\n" >> logs/coutput.log
+
+python3 play.py $opts
 echo -e "---------------------------\n" >> logs/pyoutput.log
 
-nohup ./source/move_generator/bin/move_generator >>logs/coutput.log 2>&1 &
-echo -e "---------------------------\n" >> logs/coutput.log

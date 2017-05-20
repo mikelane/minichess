@@ -6,8 +6,12 @@
 #define MOVE_GENERATOR_MOVE_GENERATOR_H
 
 #include <vector>
+#include <tuple>
 #include <unordered_map>
 #include <string>
+#include <zmq.hpp>
+#include <map>
+#include <queue>
 
 static unsigned int BLACK_IDX = 0;
 static unsigned int WHITE_IDX = 10;
@@ -21,6 +25,21 @@ typedef std::unordered_map<unsigned int, std::vector<unsigned int>> Attack_Mask;
 typedef std::unordered_map<unsigned int, std::vector<unsigned int>> Move_Mask;
 typedef std::unordered_map<unsigned int, std::string> Int_to_Str;
 typedef std::unordered_map<unsigned int, std::unordered_map<unsigned int, unsigned int>> Shadow_Mask;
+typedef std::vector<unsigned int> State_t;
+//typedef std::multimap<double, std::tuple<std::string, State_t>, std::greater<int>> Ordered_States_t;
+typedef std::tuple<double, std::string> aB_Search_Result_t;
+
+struct state_value {
+  double value;
+  std::string move_string;
+  State_t state;
+
+  friend bool operator<(const state_value &a, const state_value &b) {
+    return a.value < b.value;
+  }
+};
+
+typedef std::priority_queue<state_value> Ordered_States_t;
 
 static Int_to_Str TO_STR = {
     {1610612736, "a6"},
@@ -251,6 +270,7 @@ static Attack_Mask ROOK_ATTACK_MASKS = {
 };
 
 static Attack_Mask BLACK_PAWN_ATTACK_MASKS = {
+    // Top 30 values are move masks for pawns promoted to queen
     {1610612736, {268435456, 134217728, 67108864,  33554432, 16777216, 8388608, 524288,  131072, 16384,  2048,   512,   32,   16}},
     {1342177280, {536870912, 134217728, 67108864,  33554432, 16777216, 8388608, 4194304, 262144, 65536,  8192,   1024,  256,  8}},
     {1207959552, {536870912, 268435456, 67108864,  33554432, 8388608,  4194304, 2097152, 524288, 131072, 32768,  4096,  128,  4}},
@@ -309,6 +329,7 @@ static Attack_Mask BLACK_PAWN_ATTACK_MASKS = {
 };
 
 static Attack_Mask WHITE_PAWN_ATTACK_MASKS = {
+    // Top 30 values are move masks for pawns promoted to queen
     {1610612736, {268435456, 134217728, 67108864,  33554432, 16777216, 8388608, 524288,  131072, 16384,  2048,   512,   32,   16}},
     {1342177280, {536870912, 134217728, 67108864,  33554432, 16777216, 8388608, 4194304, 262144, 65536,  8192,   1024,  256,  8}},
     {1207959552, {536870912, 268435456, 67108864,  33554432, 8388608,  4194304, 2097152, 524288, 131072, 32768,  4096,  128,  4}},
@@ -532,6 +553,7 @@ static Move_Mask ROOK_MOVE_MASKS = {
 };
 
 static Move_Mask BLACK_PAWN_MOVE_MASKS = {
+    // Top 30 values are move masks for pawns promoted to queen
     {1610612736, {268435456, 134217728, 67108864,  33554432, 16777216, 8388608, 524288,  131072, 16384,  2048,   512,   32,   16}},
     {1342177280, {536870912, 134217728, 67108864,  33554432, 16777216, 8388608, 4194304, 262144, 65536,  8192,   1024,  256,  8}},
     {1207959552, {536870912, 268435456, 67108864,  33554432, 8388608,  4194304, 2097152, 524288, 131072, 32768,  4096,  128,  4}},
@@ -590,6 +612,7 @@ static Move_Mask BLACK_PAWN_MOVE_MASKS = {
 };
 
 static Move_Mask WHITE_PAWN_MOVE_MASKS = {
+    // Top 30 values are move masks for pawns promoted to queen
     {1610612736, {268435456, 134217728, 67108864,  33554432, 16777216, 8388608, 524288,  131072, 16384,  2048,   512,   32,   16}},
     {1342177280, {536870912, 134217728, 67108864,  33554432, 16777216, 8388608, 4194304, 262144, 65536,  8192,   1024,  256,  8}},
     {1207959552, {536870912, 268435456, 67108864,  33554432, 8388608,  4194304, 2097152, 524288, 131072, 32768,  4096,  128,  4}},
@@ -1068,12 +1091,91 @@ static Move_Mask type_to_move[20] = {
     KING_MOVE_MASKS
 };
 
-std::vector<unsigned int> parse_input(std::string);
+static int black_on_move_values[20]{
+    14400,  // MY KING
+    5500,   // MY QUEEN
+    2100,   // MY BISHOP
+    800,    // MY KNIGHT
+    300,    // MY ROOK
+    100,    // MY PAWN
+    100,    // MY PAWN
+    100,    // MY PAWN
+    100,    // MY PAWN
+    100,    // MY PAWN
+    -100,   // OPPONENT PAWN
+    -100,   // OPPONENT PAWN
+    -100,   // OPPONENT PAWN
+    -100,   // OPPONENT PAWN
+    -100,   // OPPONENT PAWN
+    -300,   // OPPONENT ROOK
+    -800,   // OPPONENT KNIGHT
+    -2100,  // OPPONENT BISHOP
+    -5500,  // OPPONENT QUEEN
+    -14400  // OPPONENT KING
+};
 
-std::string get_move(const unsigned int piece_locations[],
+static int white_on_move_values[20]{
+    -14400,  // OPPONENT KING
+    -5500,   // OPPONENT QUEEN
+    -2100,   // OPPONENT BISHOP
+    -800,    // OPPONENT KNIGHT
+    -300,    // OPPONENT ROOK
+    -100,    // OPPONENT PAWN
+    -100,    // OPPONENT PAWN
+    -100,    // OPPONENT PAWN
+    -100,    // OPPONENT PAWN
+    -100,    // OPPONENT PAWN
+    100,   // MY PAWN
+    100,   // MY PAWN
+    100,   // MY PAWN
+    100,   // MY PAWN
+    100,   // MY PAWN
+    300,   // MY ROOK
+    800,   // MY KNIGHT
+    2100,  // MY BISHOP
+    5500,  // MY QUEEN
+    14400  // MY KING
+};
+static std::unordered_map<int, int> my_player_index{
+    {1, 10},
+    {2, 0}
+};
+
+static std::unordered_map<int, int> opponent_player_index{
+    {1, 0},
+    {2, 10}
+};
+
+static std::unordered_map<unsigned int, unsigned int> opponent{
+    {1, 2},
+    {2, 1}
+};
+
+bool black_has_been_promoted(int type, unsigned int location);
+
+bool white_has_been_promoted(int type, unsigned int location);
+
+double evaluate_state(State_t state);
+
+State_t parse_input(std::string);
+
+Ordered_States_t get_ordered_children(State_t state);
+
+State_t make_attack(State_t state, int attacker_index, int target_index);
+
+State_t make_move(State_t state, int mover_index, int dest_pos);
+
+double alpha_Beta(state_value & state, int depth, double alpha, double beta, state_value & chosen_state);
+
+
+std::string get_move(unsigned int time_left,
+                     unsigned int *piece_locations,
                      unsigned int on_move,
                      unsigned int empty_locs,
                      unsigned int opponent_locs,
-                     std::string player_type);
+                     unsigned int player_type,
+                     std::string string);
+
+zmq::message_t make_message(std::string msg);
 
 #endif  //MOVE_GENERATOR_MOVE_GENERATOR_H
