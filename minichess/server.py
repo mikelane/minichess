@@ -200,6 +200,16 @@ class Server:
         opponent_move = self.imcs_stream.readline().strip()  # opponent's move
         self.logger.debug('Expecting opponent move string. Received {}'.format(opponent_move))
         assert 'illegal move' not in opponent_move
+        if '=' in opponent_move:
+            # in some kind of win state, shut down
+            if self.color in opponent_move:
+                self.logger.info('YOU WON!')
+            elif 'draw' in opponent_move:
+                self.logger.info('Game ended in a draw')
+            else:
+                self.logger.info('You lost')
+            return "GAME OVER", 0
+
         self.logger.debug('Should be opponents move: {}'.format(opponent_move))
 
         b = self.imcs_stream.readline()  # blank or win message

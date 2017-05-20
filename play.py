@@ -96,8 +96,9 @@ if __name__ == '__main__':
                 parsed_board = parse_board(board, time_left)
                 logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
                 socket.send(parsed_board.encode())
+                logger.info('Waiting on move generator response')
                 move = str(str(socket.recv().decode()))
-                logger.debug('Move generator send this move: {}'.format(move))
+                logger.debug('Move generator sent this move: {}'.format(move))
 
                 # Send the move along and get the next board
                 try:

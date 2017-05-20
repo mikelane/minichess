@@ -64,7 +64,8 @@ int main() {
     state_value best;
 
     int counter = 0;
-    int depth = (6 < 40 - parsed_state[20]) ? 6 : 40 - parsed_state[20];
+    unsigned int max_depth = 7;
+    unsigned int depth = (max_depth < 40 - parsed_state[20]) ? max_depth : 40 - parsed_state[20];
     std::cerr << "AB Search with depth " << depth << std::endl;
 
     while(!children.empty()) {
@@ -76,6 +77,7 @@ int main() {
         best_value = next_child_value;
         best = next_child;
       }
+      alpha = (alpha > next_child_value) ? alpha : next_child_value;
       std::cerr << "NODE COUNT: " << counter << std::endl;
       counter = 0;
     }
