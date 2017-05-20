@@ -1,8 +1,11 @@
 #include <iostream>
 #include <zmq.hpp>
 #include <sstream>
+#include <algorithm>
+#include <limits>
 #include "move_generator.h"
 
+//unsigned long long int zobrist_table[]
 int main() {
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REQ);
@@ -53,23 +56,24 @@ int main() {
     // Parse the state vector
     State_t parsed_state = parse_input(game_state_str);
 
-    double alpha = -50600.0;
-    double beta = -50600.0;
+    double alpha = std::numeric_limits<int>::min();
+    double beta = std::numeric_limits<int>::max();
 
     Ordered_States_t children = get_ordered_children(parsed_state);
-    state_value best = {
-        alpha,
-    };
+    double best_value = alpha;
+    state_value best;
 
     int counter = 0;
-    int num_plys = 8;
-    std::cerr << "AB Search with depth " << num_plys << std::endl;
+    int depth = (6 < 40 - parsed_state[20]) ? 6 : 40 - parsed_state[20];
+    std::cerr << "AB Search with depth " << depth << std::endl;
+
     while(!children.empty()) {
       state_value next_child = children.top();
       std::cerr << children.size() << " children remaining" <<  std::endl;
       children.pop();
-      double next_child_value = alpha_Beta(next_child, num_plys, alpha, beta, 1, ++counter);
-      if(next_child_value > best.value) {
+      double next_child_value = -alpha_Beta(next_child, depth, alpha, beta, ++counter);
+      if(next_child_value > best_value) {
+        best_value = next_child_value;
         best = next_child;
       }
       std::cerr << "NODE COUNT: " << counter << std::endl;

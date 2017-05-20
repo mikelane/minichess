@@ -90,11 +90,13 @@ Ordered_States_t get_ordered_children(State_t state) {
         if (pos & opponent_locs & shadows) {
           int target_index = 0;
           for (; target_index < 20 && pos != state[target_index]; ++target_index);
+          bool win = (target_index == 0) || (target_index == 19);
           State_t child_state = make_attack(state, my_index, target_index);
           state_value value = {
               evaluate_state(child_state),
               move_string + TO_STR[pos],
-              child_state
+              child_state,
+              (target_index == 0) || (target_index == 19)
           };
           result.emplace(value);
         }
@@ -159,7 +161,7 @@ State_t make_move(const State_t & state, int mover_index, int dest_pos) {
   result[22] ^= result[22];  // zero opponents locations
 //  int opponent_index = opponent_player_index[state[21]];
 //  int end = opponent_index + 10;
-  for (int opponent_index = opponent_player_index[state[21]], end = opponent_index + 10;
+  for (int opponent_index = opponent_player_index[result[21]], end = opponent_index + 10;
        opponent_index < end; ++opponent_index) {
     result[22] |= result[opponent_index];
   }
@@ -174,10 +176,9 @@ State_t make_move(const State_t & state, int mover_index, int dest_pos) {
   return result;
 }
 
-double alpha_Beta(state_value & state, int depth, double alpha, double beta, int color, int & node_count) {
-  if (depth == 0) {
-    std::cerr << "Returning " << color * state.value << std::endl;
-    return color * state.value;
+double alpha_Beta(state_value & state, int depth, double alpha, double beta, int & node_count) {
+  if (depth == 0 || state.win) {
+    return state.value;
   }
 
   Ordered_States_t ordered_child_states = get_ordered_children(state.state);
@@ -186,7 +187,7 @@ double alpha_Beta(state_value & state, int depth, double alpha, double beta, int
   while(!ordered_child_states.empty()) {
     state_value next_state = ordered_child_states.top();
     ordered_child_states.pop();
-    double value = -alpha_Beta(next_state, depth - 1, -beta, -alpha, -color, ++node_count);
+    double value = -alpha_Beta(next_state, depth - 1, -beta, -alpha, ++node_count);
     best_value = std::max(best_value, value);
     alpha = std::max(alpha, value);
     if(alpha >= beta) {
@@ -240,6 +241,6 @@ double evaluate_state(State_t state) {
     }
   }
 
-  return result / 10000.0;
+  return result;
 }
 

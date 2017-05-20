@@ -33,25 +33,40 @@ def teardown():
     socket.close()
 
 
-def test_move_generator():
+# def test_move_generator():
+#     logger.debug('Path: {}'.format(os.getcwd()))
+#     tests_dir = os.getcwd() + '/genmoves-tests'
+#     time_left = 300000
+#     for file in os.listdir(tests_dir):
+#         logger.debug(file)
+#         if '.in' not in file:
+#             continue
+#         out_file = '{}.out'.format(file[:-3])
+#         with open('{}/{}'.format(tests_dir, file), 'r') as f:
+#             board = f.read()
+#         with open('{}/{}'.format(tests_dir, out_file), 'r') as of:
+#             valid_moves = of.read().strip().split()
+#         if not valid_moves:
+#             valid_moves = ["LOSS!"]
+#         parsed_board = parse_board(board, time_left)
+#         logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
+#         socket.send(parsed_board.encode())
+#         move = str(socket.recv().decode())
+#         logger.debug('Move generator send this move: {}'.format(move))
+#         assert move in valid_moves
+#         print('-'*100)
+
+def test_stupid_move():
     logger.debug('Path: {}'.format(os.getcwd()))
     tests_dir = os.getcwd() + '/genmoves-tests'
     time_left = 300000
-    for file in os.listdir(tests_dir):
-        logger.debug(file)
-        if '.in' not in file:
-            continue
-        out_file = '{}.out'.format(file[:-3])
-        with open('{}/{}'.format(tests_dir, file), 'r') as f:
-            board = f.read()
-        with open('{}/{}'.format(tests_dir, out_file), 'r') as of:
-            valid_moves = of.read().strip().split()
-        if not valid_moves:
-            valid_moves = ["LOSS!"]
-        parsed_board = parse_board(board, time_left)
-        logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
-        socket.send(parsed_board.encode())
-        move = str(socket.recv().decode())
-        logger.debug('Move generator send this move: {}'.format(move))
-        assert move in valid_moves
-        print('-'*100)
+    filename = tests_dir + '/stupid-move.in'
+    logger.debug('opening {}'.format(filename))
+    with open(filename, 'r') as f:
+        board = f.read()
+    parsed_board = parse_board(board, time_left)
+    logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
+    socket.send(parsed_board.encode())
+    move = str(socket.recv().decode())
+    logger.debug('Move generator send this move: {}'.format(move))
+    print('-'*100)

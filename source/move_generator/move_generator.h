@@ -33,9 +33,10 @@ struct state_value {
   double value;
   std::string move_string;
   State_t state;
+  bool win;
 
   friend bool operator<(const state_value &a, const state_value &b) {
-    return a.value < b.value;
+    return a.value > b.value;  // Would like a min heap for child states
   }
 };
 
@@ -1092,11 +1093,11 @@ static Move_Mask type_to_move[20] = {
 };
 
 static int black_on_move_values[20]{
-    14400,  // MY KING
-    5500,   // MY QUEEN
-    2100,   // MY BISHOP
-    800,    // MY KNIGHT
-    300,    // MY ROOK
+    10000,  // MY KING
+    900,   // MY QUEEN
+    300,   // MY BISHOP
+    300,    // MY KNIGHT
+    500,    // MY ROOK
     100,    // MY PAWN
     100,    // MY PAWN
     100,    // MY PAWN
@@ -1107,19 +1108,19 @@ static int black_on_move_values[20]{
     -100,   // OPPONENT PAWN
     -100,   // OPPONENT PAWN
     -100,   // OPPONENT PAWN
-    -300,   // OPPONENT ROOK
-    -800,   // OPPONENT KNIGHT
-    -2100,  // OPPONENT BISHOP
-    -5500,  // OPPONENT QUEEN
-    -14400  // OPPONENT KING
+    -500,   // OPPONENT ROOK
+    -300,   // OPPONENT KNIGHT
+    -300,  // OPPONENT BISHOP
+    -900,  // OPPONENT QUEEN
+    -10000  // OPPONENT KING
 };
 
 static int white_on_move_values[20]{
-    -14400,  // OPPONENT KING
-    -5500,   // OPPONENT QUEEN
-    -2100,   // OPPONENT BISHOP
-    -800,    // OPPONENT KNIGHT
-    -300,    // OPPONENT ROOK
+    -10000,  // OPPONENT KING
+    -900,   // OPPONENT QUEEN
+    -300,   // OPPONENT BISHOP
+    -300,    // OPPONENT KNIGHT
+    -500,    // OPPONENT ROOK
     -100,    // OPPONENT PAWN
     -100,    // OPPONENT PAWN
     -100,    // OPPONENT PAWN
@@ -1130,11 +1131,11 @@ static int white_on_move_values[20]{
     100,   // MY PAWN
     100,   // MY PAWN
     100,   // MY PAWN
-    300,   // MY ROOK
-    800,   // MY KNIGHT
-    2100,  // MY BISHOP
-    5500,  // MY QUEEN
-    14400  // MY KING
+    500,   // MY ROOK
+    300,   // MY KNIGHT
+    300,  // MY BISHOP
+    900,  // MY QUEEN
+    10000  // MY KING
 };
 static std::unordered_map<int, int> my_player_index{
     {1, 10},
@@ -1165,7 +1166,7 @@ State_t make_attack(const State_t & state, int attacker_index, int target_index)
 
 State_t make_move(const State_t & state, int mover_index, int dest_pos);
 
-double alpha_Beta(state_value & state, int depth, double alpha, double beta, int color, int & node_count);
+double alpha_Beta(state_value & state, int depth, double alpha, double beta, int & node_count);
 
 
 std::string get_move(unsigned int time_left,
