@@ -1165,7 +1165,7 @@ State_t make_attack(const State_t & state, int attacker_index, int target_index)
 
 State_t make_move(const State_t & state, int mover_index, int dest_pos);
 
-double alpha_Beta(state_value & state, int depth, double alpha, double beta, int & node_count);
+double alpha_Beta(state_value & state, int depth, double alpha, double beta, int color, int & node_count);
 
 
 std::string get_move(unsigned int time_left,

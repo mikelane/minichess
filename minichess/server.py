@@ -205,10 +205,9 @@ class Server:
         b = self.imcs_stream.readline()  # blank or win message
         if 'wins' in b:
             if self.color in b:
-                self.logger.log('YOU WON!')
+                self.logger.info('YOU WON!')
             else:
-                self.logger.log('You lost')
-            datetime.time.sleep(1)
+                self.logger.info('You lost')
             return "GAME OVER", 0
 
         board = ""

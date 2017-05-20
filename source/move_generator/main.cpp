@@ -53,21 +53,27 @@ int main() {
     // Parse the state vector
     State_t parsed_state = parse_input(game_state_str);
 
+    double alpha = -50600.0;
+    double beta = -50600.0;
+
     Ordered_States_t children = get_ordered_children(parsed_state);
     state_value best = {
-        -50600,
+        alpha,
     };
 
     int counter = 0;
-
+    int num_plys = 8;
+    std::cerr << "AB Search with depth " << num_plys << std::endl;
     while(!children.empty()) {
       state_value next_child = children.top();
       std::cerr << children.size() << " children remaining" <<  std::endl;
       children.pop();
-      double next_child_value = alpha_Beta(next_child, 6, -50600.0, 50600.0, ++counter);
+      double next_child_value = alpha_Beta(next_child, num_plys, alpha, beta, 1, ++counter);
       if(next_child_value > best.value) {
         best = next_child;
       }
+      std::cerr << "NODE COUNT: " << counter << std::endl;
+      counter = 0;
     }
 
     std::stringstream result;

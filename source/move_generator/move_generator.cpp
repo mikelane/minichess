@@ -174,9 +174,10 @@ State_t make_move(const State_t & state, int mover_index, int dest_pos) {
   return result;
 }
 
-double alpha_Beta(state_value & state, int depth, double alpha, double beta, int & node_count) {
+double alpha_Beta(state_value & state, int depth, double alpha, double beta, int color, int & node_count) {
   if (depth == 0) {
-    return state.value;
+    std::cerr << "Returning " << color * state.value << std::endl;
+    return color * state.value;
   }
 
   Ordered_States_t ordered_child_states = get_ordered_children(state.state);
@@ -185,7 +186,7 @@ double alpha_Beta(state_value & state, int depth, double alpha, double beta, int
   while(!ordered_child_states.empty()) {
     state_value next_state = ordered_child_states.top();
     ordered_child_states.pop();
-    double value = -alpha_Beta(next_state, depth - 1, -beta, -alpha, ++node_count);
+    double value = -alpha_Beta(next_state, depth - 1, -beta, -alpha, -color, ++node_count);
     best_value = std::max(best_value, value);
     alpha = std::max(alpha, value);
     if(alpha >= beta) {
@@ -196,54 +197,6 @@ double alpha_Beta(state_value & state, int depth, double alpha, double beta, int
   return best_value;
 }
 
-/**
- * The get move function returns the string that the server needs. For example a move
- * from B2 to C3 would be B2-C3.
- * @param piece_locations - This is an array of piece locations where the index indicates the
- *      piece type and the value at that index is the location of that piece type on the board.
- *      The piece types should be arranged this way: [k,q,b,n,r,p,p,p,p,p,P,P,P,P,P,R,N,B,Q,K].
- *      The locations on the board are denoted by 30-bit integers. The value should correspond
- *      to one of the 30 board locations. 1 << 30 is the top left corner (A6), 1 << 0 is the
- *      bottom right corner (E1).
- * @param on_move - The player that is on move. 1 is Black, 2 is White.
- * @param empty_locs - An integer that corresponds to the 30-bit board with 1 in all the
- *      cells that that are empty.
- * @param opponent_locs - An integer that corresponds to the 30-bit board with 1 in all the
- *      cells that have an opponent in them
- * @TODO Add negamax option
- * @TODO add aB pruning
- * @TODO add Iterative Deepening
- * @TODO add timing
- * @return - A string corresponding to a single move in the format A6-B5.
- */
-//std::string get_move(unsigned int time_left,
-//                     const unsigned int *piece_locations,
-//                     unsigned int on_move,
-//                     unsigned int empty_locs,
-//                     unsigned int opponent_locs,
-//                     unsigned int move_number,
-//                     std::string player_type) {
-//  std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-//
-//  std::vector<std::string> legal_moves = {};
-//  std::vector<std::string> legal_attacks = {};
-//
-//  std::string result = "";
-//
-//
-//  if (legal_attacks.size() || legal_moves.size()) {
-//    if (player_type == "1") {  // Random player
-//      // Combine the legal attacks and legal moves vectors
-//      legal_attacks.insert(legal_attacks.end(), legal_moves.begin(), legal_moves.end());
-//      // Shuffle them and return the first element. (Speed is not a problem with a random player)
-//      std::mt19937 r{std::random_device{}()};
-//      std::shuffle(std::begin(legal_attacks), std::end(legal_attacks), r);
-//      return legal_attacks[0];
-//    }
-//  } else {
-//    return "ERROR";
-//  }
-//}
 
 /**
  * A utility function to be able to change a string into a zmq message

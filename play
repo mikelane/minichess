@@ -68,6 +68,6 @@ nohup ./source/move_generator/bin/move_generator >>logs/coutput.log 2>&1 &
 echo "MOVE GENERATOR PID: $!"
 echo -e "---------------------------\n" >> logs/coutput.log
 
-python3 play.py $opts
+pypy play.py $opts
 echo -e "---------------------------\n" >> logs/pyoutput.log
 

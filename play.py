@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
                 # Send the move along and get the next board
                 try:
-                    board, time = s.send_move(move)
+                    board, time_left = s.send_move(move)
                 except AssertionError as e:
                     logger.error('AssertionError'.format(e.message))
                     socket.send('QUIT')
