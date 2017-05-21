@@ -200,6 +200,16 @@ class Server:
         opponent_move = self.imcs_stream.readline().strip()  # opponent's move
         self.logger.debug('Expecting opponent move string. Received {}'.format(opponent_move))
         assert 'illegal move' not in opponent_move
+        if '=' in opponent_move:
+            # in some kind of win state, shut down
+            if self.color in opponent_move:
+                self.logger.info('YOU WON!')
+            elif 'draw' in opponent_move:
+                self.logger.info('Game ended in a draw')
+            else:
+                self.logger.info('You lost')
+            return "GAME OVER", 0
+
         self.logger.debug('Should be opponents move: {}'.format(opponent_move))
 
         b = self.imcs_stream.readline()  # blank or win message
@@ -213,11 +223,14 @@ class Server:
         board = ""
         for _ in range(7):
             board += self.imcs_stream.readline()
-        self.imcs_stream.readline()  # blank line
+        b = self.imcs_stream.readline()  # blank line
+        self.logger.debug('Expecting blank. Received: {}'.format(b))
 
         # Parse the timer and get my time left in milliseconds
         my_time = re.split('\D', self.imcs_stream.readline().strip().split()[1])
-        time_left = datetime.timedelta(minutes=float(my_time[0]), seconds=float(my_time[1]), milliseconds=float(my_time[2]))
+        time_left = datetime.timedelta(minutes=float(my_time[0]), seconds=float(my_time[1]),
+                                       milliseconds=float(my_time[2]))
+
         return board, int(time_left.total_seconds() * 1000)
 
     def send_resign(self):

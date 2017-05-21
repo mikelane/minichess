@@ -96,7 +96,8 @@ Ordered_States_t get_ordered_children(State_t state) {
               evaluate_state(child_state),
               move_string + TO_STR[pos],
               child_state,
-              (target_index == 0) || (target_index == 19)
+              (target_index == 0) || (target_index == 19),
+              true,  // This is an attack
           };
           result.emplace(value);
         }
@@ -109,7 +110,8 @@ Ordered_States_t get_ordered_children(State_t state) {
           state_value value = {
               evaluate_state(child_state),
               move_string + TO_STR[pos],
-              child_state
+              child_state,
+              false  // This is not an attack
           };
           result.emplace(value);
         }

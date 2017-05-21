@@ -40,6 +40,7 @@ int main() {
   }
 
   std::string game_state_str = "";
+  std::string move_hist[2] = {"", ""};
 
   // Enter the game loop
   while (game_state_str != "QUIT") {
@@ -64,18 +65,22 @@ int main() {
     state_value best;
 
     int counter = 0;
-    int depth = (6 < 40 - parsed_state[20]) ? 6 : 40 - parsed_state[20];
+    int depth = 6;
     std::cerr << "AB Search with depth " << depth << std::endl;
 
     while(!children.empty()) {
       state_value next_child = children.top();
       std::cerr << children.size() << " children remaining" <<  std::endl;
       children.pop();
+      if(!next_child.attack && next_child.move_string == move_hist[0]) {
+        continue;
+      }
       double next_child_value = -alpha_Beta(next_child, depth, alpha, beta, ++counter);
       if(next_child_value > best_value) {
         best_value = next_child_value;
         best = next_child;
       }
+      alpha = (next_child_value > alpha) ? next_child_value : alpha;
       std::cerr << "NODE COUNT: " << counter << std::endl;
       counter = 0;
     }
@@ -87,6 +92,10 @@ int main() {
     } else {
       result.str(best.move_string);
     }
+
+    move_hist[0] = move_hist[1];
+    move_hist[1] = best.attack ? "" : best.move_string;
+
     zmq::message_t move_message((void *) result.str().c_str(), result.str().size(), NULL);
     std::cerr << "Sending move: " << (const char *) move_message.data() << std::endl;
     socket.send(move_message);

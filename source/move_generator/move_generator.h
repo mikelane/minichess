@@ -34,6 +34,7 @@ struct state_value {
   std::string move_string;
   State_t state;
   bool win;
+  bool attack;
 
   friend bool operator<(const state_value &a, const state_value &b) {
     return a.value > b.value;  // Would like a min heap for child states

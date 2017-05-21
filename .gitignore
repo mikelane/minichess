@@ -255,3 +255,4 @@ ENV/
 settings.ini
 /source/move_generator/bin/
 /tests/genmoves-tests/
+/logs/*
