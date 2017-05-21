@@ -1,0 +1,14 @@
+Mike Lane
+lane7@pdx.edu
+mikelane@gmail.com
+CS542
+
+Homework 3 Writeup
+
+### This is for the game with git tag v1.0 ###
+
+My program is, admittedly, a bit more complex than it needs to be. That said, it certainly is a nice challenge. I've used a Python script (that is compatible with pypy2, python 2.7.13, and python 3.6.0) to manage the connection to the imcs server and to deal with the reading and parsing input and sending the resulting move string. For the "backend" processing, I'm using a C++ script that works with bitboards. The Python script and the C++ backend communicate via IPC using zeromq. I found zeromq to be quite simple to understand and sufficient for my needs.
+
+My previous submissions had a problem with ending up in oscillations which would continue until a draw was reached. This submission handles this by keeping track of the last two moves so that my player is prevented from making the same move that it did two moves ago. I felt that was probably a bit too strong of a heuristic (What if an attacker oscillates back and forth making legitimate attacks?), so I started keeping track of moves that are attack moves so I could prevent them from being considered.
+
+Before the oscillation handling, my games against the tacklingDummy would often end up in draws and, if not, the games would last nearly 40 turns. This was especially true when playing as B, it seemed (a6-b6, b6-a6 and a6-b5, b5-a6 were especially popular oscillations for the king). With the oscillation handling, the games go only 18 or 20 moves until I get a win (playing either W or B). Have a look at game number 16235 and 16482 for the two wins.

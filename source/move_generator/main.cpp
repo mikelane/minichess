@@ -39,19 +39,21 @@ int main() {
     socket.send(response);
   }
 
-  std::string game_state_str = "";
-  std::string move_hist[2] = {"", ""};
+//  std::string game_state_str{""};
+  std::string move_hist[2]{"", ""};
 
   // Enter the game loop
-  while (game_state_str != "QUIT") {
+  while (true) {
     // Try to get the game state vector
     zmq::message_t game_state;
     socket.recv(&game_state);
-    std::string game_state_str = std::string(static_cast<char *>(game_state.data()), game_state.size());
+    std::string game_state_str{std::string(static_cast<char *>(game_state.data()), game_state.size())};
     std::cerr << "Received: " << game_state_str << std::endl;
     if (game_state_str == "QUIT") {
       std::cerr << "Quitting" << std::endl;
-      return 0;
+      std::cerr << "Closing the socket" << std::endl;
+      socket.close();
+      return 1;
     }
 
     // Parse the state vector
@@ -89,9 +91,12 @@ int main() {
 
     if(best.move_string == "") {
       result.str("LOSS!");
-    } else {
-      result.str(best.move_string);
+      std::cerr << "Closing the socket" << std::endl;
+      socket.close();
+      return 1;
     }
+
+    result.str(best.move_string);
 
     move_hist[0] = move_hist[1];
     move_hist[1] = best.attack ? "" : best.move_string;
@@ -100,9 +105,4 @@ int main() {
     std::cerr << "Sending move: " << (const char *) move_message.data() << std::endl;
     socket.send(move_message);
   }
-
-  std::cerr << "Closing the socket" << std::endl;
-  socket.close();
-
-  return 0;
 }

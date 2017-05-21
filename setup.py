@@ -1,27 +1,42 @@
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
+from os import path
 
-config = {
-    'description': 'minichess AI',
-    'author': 'Michael Lane',
-    'url': 'http://github.com/mikelane/',
-    'download_url': 'http://github.com/mikelane/minichess',
-    'author_email': 'mikelane@gmail.com',
-    'version': '0.1',
-    'install_requires': [
-        'nose',
-        'future',
-        'past',
-        'builtins',
-        'configparser',
-        'numpy',
-        'pyzmq'
+here = path.abspath(path.dirname(__file__))
+
+setup(
+    name='minichess',
+    version='1.0.1',
+    packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
+    url='https://github.com/mikelane/minichess',
+    license='MIT',
+    author='Michael Lane',
+    author_email='mikelane@gmail.com',
+    description='An AI for minitchess',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Students',
+        'Topic :: Education :: Artificial Intelligence',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Pypy2 :: 5.7'
     ],
-    'packages': ['minichess'],
-    'scripts': [],
-    'name': 'minichess'
-}
-
-setup(**config)
+    keywords='combinatorial games ai artificial intelligence education',
+    install_requires=[
+        'cython',
+        'numpy',
+        'pyzmq',
+        'future',
+        'six',
+        'configparser',
+        'nose'
+    ],
+    setup_requires=[
+        'cython',
+        'numpy',
+        'pyzmq',
+        'future',
+        'six',
+        'configparser',
+        'nose'
+    ]
+)
