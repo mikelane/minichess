@@ -59,13 +59,12 @@ int main() {
     double alpha = std::numeric_limits<int>::min();
     double beta = std::numeric_limits<int>::max();
 
-    Ordered_States_t children = get_ordered_children(parsed_state, "", 0);
+    Ordered_States_t children = get_ordered_children(parsed_state);
     double best_value = alpha;
     state_value best;
 
     int counter = 0;
-    unsigned int max_depth = 7;
-    unsigned int depth = (max_depth < 40 - parsed_state[20]) ? max_depth : 40 - parsed_state[20];
+    unsigned int depth = 7;
     std::cerr << "AB Search with depth " << depth << std::endl;
 
     while(!children.empty()) {

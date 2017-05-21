@@ -34,7 +34,7 @@ struct state_value {
   std::string move_string;
   State_t state;
   bool win;
-  std::string parent_start_pos;
+  std::string ancestors[3]{"", "", ""};
   int osc_penalty;
 
   friend bool operator<(const state_value &a, const state_value &b) {
@@ -1162,7 +1162,7 @@ double evaluate_state(State_t state);
 
 State_t parse_input(std::string);
 
-Ordered_States_t get_ordered_children(State_t state, std::string parent_start_pos, int osc_penalt);
+Ordered_States_t get_ordered_children(State_t state);
 
 State_t make_attack(const State_t & state, int attacker_index, int target_index);
 

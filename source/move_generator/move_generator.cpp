@@ -46,7 +46,7 @@ State_t parse_input(std::string input) {
  * @param state
  * @return
  */
-Ordered_States_t get_ordered_children(State_t state, std::string parent_start_pos, int osc_penalty) {
+Ordered_States_t get_ordered_children(State_t state) {
   Ordered_States_t result;
   unsigned int to_move_location;
   std::string move_string = "";
@@ -92,14 +92,15 @@ Ordered_States_t get_ordered_children(State_t state, std::string parent_start_po
           for (; target_index < 20 && pos != state[target_index]; ++target_index);
           bool win = (target_index == 0) || (target_index == 19);
           State_t child_state = make_attack(state, my_index, target_index);
-          state_value value = {
-              evaluate_state(child_state),
-              move_string + TO_STR[pos],
-              child_state,
-              (target_index == 0) || (target_index == 19),
-              start_pos,
-              0
-          };
+          state_value value;
+          value.value = evaluate_state(child_state);
+          value.move_string = move_string + TO_STR[pos];
+          value.state = child_state;
+          value.win = (target_index == 0) || (target_index == 19);
+          value.ancestors[0] = value.ancestors[1];
+          value.ancestors[1] = value.ancestors[2];
+          value.ancestors[2] = start_pos;
+          value.osc_penalty = 0;  // Don't penalize attacks
           result.emplace(value);
         }
       }
@@ -108,14 +109,18 @@ Ordered_States_t get_ordered_children(State_t state, std::string parent_start_po
       for (unsigned int pos : type_to_move[my_index][to_move_location]) {
         if (pos & empty_locs & shadows) {
           State_t child_state = make_move(state, my_index, pos);
-          state_value value = {
-              evaluate_state(child_state) - osc_penalty,
-              move_string + TO_STR[pos],
-              child_state,
-              false,
-              start_pos,
-              (parent_start_pos == TO_STR[pos]) ? std::max(100, osc_penalty * 2) : 0
-          };
+          state_value value;
+          value.move_string = move_string + TO_STR[pos];
+          value.state = child_state;
+          value.win = false;
+          value.ancestors[0] = value.ancestors[1];
+          value.ancestors[1] = value.ancestors[2];
+          value.ancestors[2] = start_pos;
+          if(value.ancestors[0] == TO_STR[pos]) {
+            value.osc_penalty = std::max(100, value.osc_penalty * 2);
+          } else {
+            value.osc_penalty = 0;
+          }
           result.emplace(value);
         }
       }
@@ -186,7 +191,7 @@ double alpha_Beta(state_value & state, int depth, double alpha, double beta, int
     return state.value;
   }
 
-  Ordered_States_t ordered_child_states = get_ordered_children(state.state, state.parent_start_pos, state.osc_penalty);
+  Ordered_States_t ordered_child_states = get_ordered_children(state.state);
 
   double best_value = -50600.0; // -inf
   while(!ordered_child_states.empty()) {
