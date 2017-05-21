@@ -34,6 +34,8 @@ struct state_value {
   std::string move_string;
   State_t state;
   bool win;
+  std::string parent_start_pos;
+  int osc_penalty;
 
   friend bool operator<(const state_value &a, const state_value &b) {
     return a.value > b.value;  // Would like a min heap for child states
@@ -1160,14 +1162,13 @@ double evaluate_state(State_t state);
 
 State_t parse_input(std::string);
 
-Ordered_States_t get_ordered_children(State_t state);
+Ordered_States_t get_ordered_children(State_t state, std::string parent_start_pos, int osc_penalt);
 
 State_t make_attack(const State_t & state, int attacker_index, int target_index);
 
 State_t make_move(const State_t & state, int mover_index, int dest_pos);
 
 double alpha_Beta(state_value & state, int depth, double alpha, double beta, int & node_count);
-
 
 std::string get_move(unsigned int time_left,
                      unsigned int *piece_locations,

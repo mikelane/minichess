@@ -46,7 +46,7 @@ State_t parse_input(std::string input) {
  * @param state
  * @return
  */
-Ordered_States_t get_ordered_children(State_t state) {
+Ordered_States_t get_ordered_children(State_t state, std::string parent_start_pos, int osc_penalty) {
   Ordered_States_t result;
   unsigned int to_move_location;
   std::string move_string = "";
@@ -96,7 +96,9 @@ Ordered_States_t get_ordered_children(State_t state) {
               evaluate_state(child_state),
               move_string + TO_STR[pos],
               child_state,
-              (target_index == 0) || (target_index == 19)
+              (target_index == 0) || (target_index == 19),
+              start_pos,
+              0
           };
           result.emplace(value);
         }
@@ -107,9 +109,12 @@ Ordered_States_t get_ordered_children(State_t state) {
         if (pos & empty_locs & shadows) {
           State_t child_state = make_move(state, my_index, pos);
           state_value value = {
-              evaluate_state(child_state),
+              evaluate_state(child_state) - osc_penalty,
               move_string + TO_STR[pos],
-              child_state
+              child_state,
+              false,
+              start_pos,
+              (parent_start_pos == TO_STR[pos]) ? std::max(100, osc_penalty * 2) : 0
           };
           result.emplace(value);
         }
@@ -181,7 +186,7 @@ double alpha_Beta(state_value & state, int depth, double alpha, double beta, int
     return state.value;
   }
 
-  Ordered_States_t ordered_child_states = get_ordered_children(state.state);
+  Ordered_States_t ordered_child_states = get_ordered_children(state.state, state.parent_start_pos, state.osc_penalty);
 
   double best_value = -50600.0; // -inf
   while(!ordered_child_states.empty()) {

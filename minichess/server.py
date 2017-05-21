@@ -10,6 +10,7 @@ skirmish, https://github.com/chromakode/skirmish.
 from __future__ import print_function
 
 import logging
+import os
 import socket
 import sys
 import datetime
@@ -30,7 +31,7 @@ else:
 class Server:
     imcs_socket = socket.socket()
     try:
-        imcs_stream = imcs_socket.makefile(mode='rw', buffersize=0)
+        imcs_stream = imcs_socket.makefile(mode='rw')
     except TypeError:
         imcs_stream = imcs_socket.makefile(mode='rw', bufsize=0)
 
@@ -38,11 +39,25 @@ class Server:
         self.logger = logging.getLogger('root')
         # Server and Player info MUST be stored in a settings.ini file in the root dir.
         config = configparser.ConfigParser()
-        config.read('settings.ini')
-        self.host = config['SERVER']['host']
-        self.port = int(config['SERVER']['port'])
-        self.username = config['PLAYER']['username']
-        self.password = config['PLAYER']['password']
+        if os.path.isfile('settings.ini'):
+            config.read('settings.ini')
+            self.host = config['SERVER']['host']
+            self.port = int(config['SERVER']['port'])
+            self.username = config['PLAYER']['username']
+            self.password = config['PLAYER']['password']
+        else:
+            print('No settings.ini file detected, creating one')
+            config['SERVER'] = {}
+            config['PLAYER'] = {}
+            self.host = config['SERVER']['host'] = input('IMCS url: ')
+            self.port = config['SERVER']['port'] = input('IMCS port: ')
+            self.username = config['PLAYER']['username'] = input('Username (Note you must register first): ')
+            self.password = config['PLAYER']['password'] = input('Password: ')
+            print('This information will be stored for all future games.')
+            print('Modify settings.ini directly if you want to change anything.')
+            with open('settings.ini', 'w') as config_file:
+                config.write(config_file)
+
         self.color = None
 
     def __enter__(self):

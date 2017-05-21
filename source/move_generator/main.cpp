@@ -59,7 +59,7 @@ int main() {
     double alpha = std::numeric_limits<int>::min();
     double beta = std::numeric_limits<int>::max();
 
-    Ordered_States_t children = get_ordered_children(parsed_state);
+    Ordered_States_t children = get_ordered_children(parsed_state, "", 0);
     double best_value = alpha;
     state_value best;
 
