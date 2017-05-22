@@ -24,7 +24,19 @@ For the Python portion, you'll need Python 2.7.13, Python 3.6.0, or Pypy2 5.7.0.
 
     python setup.py build
     python setup.py install
-	
+    
+### Connecting to the IMCS ###
+
+In order to connect to the IMCS server, you must have a settings file. The game will attempt to help you make the settings file on the first run if no such file is found, but this might be a bit buggy at the moment. For now, please create a file called `settings.ini` and input information like you see in the `example_settings.ini` file.
+
+    [SERVER]
+    host = sweet.chess.host.url
+    port = 9999
+    
+    [PLAYER]
+    username = ur_player
+    password = hunter2
+
 ### Playing a Game ###
 
 Currently, this AI only supports accepting games and you must do it manually. This is still in the debugging stage, so the `play` bash script will start the c++ file as well as the python file with the `--debug` and `--player ab` flags. So all you have to do to start playing a game is to execute the following command:

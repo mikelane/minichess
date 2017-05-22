@@ -5,7 +5,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='minichess',
-    version='1.3',
+    version='1.3.2',
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     url='https://github.com/mikelane/minichess',
     license='MIT',
