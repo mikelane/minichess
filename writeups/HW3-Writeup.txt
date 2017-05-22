@@ -5,7 +5,7 @@ CS542
 
 Homework 3 Writeup
 
-### This is for the game with git tag v1.0 ###
+### This is for the game with git tag v1.3 ###
 
 My program is, admittedly, a bit more complex than it needs to be. That said, it certainly is a nice challenge. I've used a Python script (that is compatible with pypy2, python 2.7.13, and python 3.6.0) to manage the connection to the imcs server and to deal with the reading and parsing input and sending the resulting move string. For the "backend" processing, I'm using a C++ script that works with bitboards. The Python script and the C++ backend communicate via IPC using zeromq. I found zeromq to be quite simple to understand and sufficient for my needs.
 
