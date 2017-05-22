@@ -12,14 +12,14 @@ OFILE = -o $(BINDIR)move_generator
 
 # g++ --std=c++11 -o source/move_generator/bin/move_generator source/move_generator/*.cpp -g -lzmq -Wall
 
-debug:
-	$(CC) $(C11) $(OFILE) $(SOURCES) $(DEBUG) $(LIBS)
+optimized:
+	$(CC) $(C11) $(OFILE) $(SOURCES) $(LIBS) $(OFLAGS)
 
 odebug:
 	$(CC) $(C11) $(OFILE) $(SOURCES) $(DEBUG) $(LIBS) $(OFLAGS)
 
-optimized:
-	$(CC) $(C11) $(OFILE) $(SOURCES) $(LIBS) $(OFLAGS)
+debug:
+	$(CC) $(C11) $(OFILE) $(SOURCES) $(DEBUG) $(LIBS)
 
 standard:
 	$(CC) $(C11) $(OFILE) $(SOURCES) $(LIBS)
