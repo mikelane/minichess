@@ -107,7 +107,6 @@ class Server:
         self.send('list')
         data = self.imcs_stream.readline().rstrip()
         self.logger.info(data)
-
         while data:
             data = self.imcs_stream.readline().rstrip()
             self.logger.debug(data)
@@ -158,6 +157,8 @@ class Server:
         keep_reading = True
         while keep_reading:
             line = self.imcs_stream.readline()
+            if '=' in line:
+                self.__exit__(None, None, None)
             if line[0] == '?':
                 timer_string = line.strip()
                 keep_reading = False
