@@ -67,7 +67,7 @@ int main() {
     state_value best;
 
     int counter = 0;
-    int depth = 6;
+    int depth = 7;
     std::cerr << "AB Search with depth " << depth << std::endl;
 
     while(!children.empty()) {

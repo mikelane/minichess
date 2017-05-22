@@ -90,7 +90,7 @@ if __name__ == '__main__':
             logger.debug('Have this many milliseconds left: {}'.format(time_left))
 
             # Begin the game loop
-            counter = 40
+            counter = 41
             while counter > 0:
                 # Parse the board and send it to the move generator
                 parsed_board = parse_board(board, time_left)
