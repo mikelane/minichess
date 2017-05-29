@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
-set(SOURCE_FILES main.cpp move_generator.cpp)
+set(SOURCE_FILES main.cpp move_generator.cpp bitboard_tables.h)
 add_executable(move_generator ${SOURCE_FILES})
 
 target_include_directories(move_generator PUBLIC ${ZeroMQ_INCLUDE_DIR})

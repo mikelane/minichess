@@ -3,6 +3,7 @@
 //
 
 #include "move_generator.h"
+#include "bitboard_tables.h"
 #include <iostream>
 #include <random>
 #include <sstream>

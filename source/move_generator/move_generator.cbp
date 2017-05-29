@@ -82,6 +82,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/bitboard_tables.h">
+			<Option target="move_generator"/>
+		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/main.cpp">
 			<Option target="move_generator"/>
 		</Unit>

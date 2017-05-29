@@ -1,8 +1,6 @@
 #include <iostream>
 #include <zmq.hpp>
 #include <sstream>
-#include <algorithm>
-#include <limits>
 #include "move_generator.h"
 
 //unsigned long long int zobrist_table[]
@@ -67,7 +65,7 @@ int main() {
     state_value best;
 
     int counter = 0;
-    int depth = 7;
+    int depth = 8;
     std::cerr << "AB Search with depth " << depth << std::endl;
 
     while(!children.empty()) {
