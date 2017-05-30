@@ -78,11 +78,14 @@ class Server:
 
     @classmethod
     def send(cls, command):
-        if python_version == 3:
-            print(command, file=cls.imcs_stream, flush=True)
-        else:
-            print(command, file=cls.imcs_stream)
-            cls.imcs_stream.flush()
+        try:
+            if python_version == 3:
+                print(command, file=cls.imcs_stream, flush=True)
+            else:
+                print(command, file=cls.imcs_stream)
+                cls.imcs_stream.flush()
+        except IOError:
+            pass
 
     def get_help(self):
         """

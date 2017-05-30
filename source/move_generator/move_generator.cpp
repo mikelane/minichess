@@ -95,7 +95,8 @@ Ordered_States_t get_ordered_children(State_t state, unsigned long long int hash
           bool win = (target_index == 0) || (target_index == 19);
           State_t child_state = make_attack(state, my_index, target_index);
           state_value value = {
-              negamax(child_state, 2, -50600, 50600, zhasher),
+//              negamax(child_state, 0, -50600, 50600, zhasher),
+              material_evaluation(child_state),
               move_string + TO_STR[pos],
               child_state,
               (target_index == 0) || (target_index == 19),
@@ -263,7 +264,7 @@ int negamax(State_t state, int depth, int alpha, int beta, Zobrist_Table & zhash
   return best_value;
 }
 
-int alpha_Beta(state_value &state, int depth, int alpha, int beta, int &node_count, Zobrist_Table &zhasher, ttable & TTable) {
+int alpha_Beta(state_value &state, int depth, int alpha, int beta, int &node_count, int & cache_hits, Zobrist_Table &zhasher, ttable & TTable) {
   if (depth == 0 || state.win) {
     return state.value;
   }
@@ -271,6 +272,7 @@ int alpha_Beta(state_value &state, int depth, int alpha, int beta, int &node_cou
   Ttable_Entry t = TTable.get_entry(state.hash);
   if (t.isValid() && t.getDepth() >= depth) {
     if (t.getFlag() == ttable_flag::EXACT_VALUE) {
+      ++cache_hits;
       return t.getValue();
     } else if (t.getFlag() == ttable_flag::LOWER_BOUND) {
       alpha = std::max(alpha, t.getValue());
@@ -278,6 +280,7 @@ int alpha_Beta(state_value &state, int depth, int alpha, int beta, int &node_cou
       beta = std::min(beta, t.getValue());
     }
     if (alpha >= beta) {
+      ++cache_hits;
       return t.getValue();
     }
   }
@@ -288,7 +291,7 @@ int alpha_Beta(state_value &state, int depth, int alpha, int beta, int &node_cou
   while (!ordered_child_states.empty()) {
     state_value next_state = ordered_child_states.top();
     ordered_child_states.pop();
-    int value = -alpha_Beta(next_state, depth - 1, -std::max(best_value, alpha), -alpha, ++node_count, zhasher, TTable);
+    int value = -alpha_Beta(next_state, depth - 1, -std::max(best_value, alpha), -alpha, ++node_count, cache_hits, zhasher, TTable);
     best_value = std::max(best_value, value);
 //    alpha = std::max(alpha, value);
     if (alpha >= beta) {

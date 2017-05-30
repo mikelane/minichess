@@ -34,7 +34,7 @@ State_t make_move(const State_t &state, int mover_index, int dest_pos);
 
 int negamax(State_t state, int depth, int alpha, int beta, Zobrist_Table & zhasher);
 
-int alpha_Beta(state_value &state, int depth, int alpha, int beta, int &node_count, Zobrist_Table &zhasher, ttable & TTable);
+int alpha_Beta(state_value &state, int depth, int alpha, int beta, int &node_count, int & cache_hits, Zobrist_Table &zhasher, ttable & TTable);
 
 std::string
 get_move(unsigned int time_left, unsigned int *piece_locations, unsigned int on_move, unsigned int empty_locs,

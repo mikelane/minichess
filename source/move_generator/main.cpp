@@ -60,14 +60,18 @@ int main() {
     unsigned long long int root_hash = zhasher.hash_state(parsed_state);
     std::cerr << "Root state hash: " << root_hash << std::endl;
 
-    double alpha = std::numeric_limits<int>::min();
-    double beta = std::numeric_limits<int>::max();
+    // This will (and should) get a blank and invalid Ttable_entry.
+    Ttable_Entry t = TTable.get_entry(root_hash);
+
+    int alpha = std::numeric_limits<int>::min();
+    int beta = std::numeric_limits<int>::max();
 
     Ordered_States_t children = get_ordered_children(parsed_state, root_hash, zhasher);
-    double best_value = alpha;
+    int best_value = alpha;
     state_value best;
 
     int counter = 0;
+    int cache_hits = 0;
     int depth = 5;
     std::cerr << "AB Search with depth " << depth << std::endl;
 
@@ -78,15 +82,30 @@ int main() {
       if(!next_child.attack && next_child.move_string == move_hist[0]) {
         continue;
       }
-      double next_child_value = -alpha_Beta(next_child, depth, alpha, beta, ++counter, zhasher, TTable);
+      int next_child_value = -alpha_Beta(next_child, depth, alpha, beta, ++counter, cache_hits, zhasher, TTable);
       if(next_child_value > best_value) {
         best_value = next_child_value;
         best = next_child;
       }
-      alpha = (next_child_value > alpha) ? next_child_value : alpha;
+      alpha = std::max(next_child_value, alpha); // (next_child_value > alpha) ? next_child_value : alpha;
       std::cerr << "NODE COUNT: " << counter << std::endl;
+      std::cerr << "CACHE HITS: " << cache_hits << std::endl;
       counter = 0;
     }
+
+    // Transposition Table Store
+    t.setValid(true);
+    t.setHash(root_hash);
+    t.setValue(best_value);
+    if (best_value <= alpha) {
+      t.setFlag(ttable_flag::UPPER_BOUND);
+    } else if (best_value >= beta) {
+      t.setFlag(ttable_flag::LOWER_BOUND);
+    } else {
+      t.setFlag(ttable_flag::EXACT_VALUE);
+    }
+    t.setDepth(0);
+    TTable.insert(t);
 
     std::stringstream result;
 
