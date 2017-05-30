@@ -7,6 +7,7 @@ int main() {
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REQ);
   Zobrist_Table zhasher;
+  ttable TTable;
 
   std::cerr << "Connecting to server ... " << std::endl;
   socket.connect("tcp://localhost:5555");
@@ -77,7 +78,7 @@ int main() {
       if(!next_child.attack && next_child.move_string == move_hist[0]) {
         continue;
       }
-      double next_child_value = -alpha_Beta(next_child, depth, alpha, beta, ++counter, zhasher);
+      double next_child_value = -alpha_Beta(next_child, depth, alpha, beta, ++counter, zhasher, TTable);
       if(next_child_value > best_value) {
         best_value = next_child_value;
         best = next_child;

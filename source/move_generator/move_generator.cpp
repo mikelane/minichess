@@ -3,8 +3,11 @@
 //
 
 #include "move_generator.h"
+#include "Ttable_Entry.h"
+#include "ttable.h"
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 int timecounter = 0;
 
@@ -260,24 +263,52 @@ int negamax(State_t state, int depth, int alpha, int beta, Zobrist_Table & zhash
   return best_value;
 }
 
-int alpha_Beta(state_value &state, int depth, double alpha, double beta, int &node_count, Zobrist_Table &zhasher) {
+int alpha_Beta(state_value &state, int depth, int alpha, int beta, int &node_count, Zobrist_Table &zhasher, ttable & TTable) {
   if (depth == 0 || state.win) {
     return state.value;
   }
 
+  Ttable_Entry t = TTable.get_entry(state.hash);
+  if (t.isValid() && t.getDepth() >= depth) {
+    if (t.getFlag() == ttable_flag::EXACT_VALUE) {
+      return t.getValue();
+    } else if (t.getFlag() == ttable_flag::LOWER_BOUND) {
+      alpha = std::max(alpha, t.getValue());
+    } else if (t.getFlag() == ttable_flag::UPPER_BOUND) {
+      beta = std::min(beta, t.getValue());
+    }
+    if (alpha >= beta) {
+      return t.getValue();
+    }
+  }
+
   Ordered_States_t ordered_child_states = get_ordered_children(state.state, state.hash, zhasher);
 
-  double best_value = -50600.0; // -inf
+  int best_value = -50600; // -inf
   while (!ordered_child_states.empty()) {
     state_value next_state = ordered_child_states.top();
     ordered_child_states.pop();
-    double value = -alpha_Beta(next_state, depth - 1, -beta, -alpha, ++node_count, zhasher);
+    int value = -alpha_Beta(next_state, depth - 1, -std::max(best_value, alpha), -alpha, ++node_count, zhasher, TTable);
     best_value = std::max(best_value, value);
-    alpha = std::max(alpha, value);
+//    alpha = std::max(alpha, value);
     if (alpha >= beta) {
       break;
     }
   }
+
+  // Transposition Table Store
+  t.setValid(true);
+  t.setHash(state.hash);
+  t.setValue(best_value);
+  if (best_value <= alpha) {
+    t.setFlag(ttable_flag::UPPER_BOUND);
+  } else if (best_value >= beta) {
+    t.setFlag(ttable_flag::LOWER_BOUND);
+  } else {
+    t.setFlag(ttable_flag::EXACT_VALUE);
+  }
+  t.setDepth(depth);
+  TTable.insert(t);
 
   return best_value;
 }
