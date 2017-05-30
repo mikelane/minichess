@@ -11,6 +11,7 @@
 #include <string>
 #include <map>
 #include <queue>
+#include "Zobrist_Table.h"
 
 static unsigned int BLACK_IDX = 0;
 static unsigned int WHITE_IDX = 10;
@@ -23,15 +24,17 @@ enum player : int {
 typedef std::unordered_map<unsigned int, std::vector<unsigned int>> Attack_Mask;
 typedef std::unordered_map<unsigned int, std::vector<unsigned int>> Move_Mask;
 typedef std::unordered_map<unsigned int, std::string> Int_to_Str;
+typedef std::unordered_map<unsigned int, int> Int_to_Idx;
 typedef std::unordered_map<unsigned int, std::unordered_map<unsigned int, unsigned int>> Shadow_Mask;
 typedef std::vector<unsigned int> State_t;
 
 struct state_value {
-  double value;
+  int value;
   std::string move_string;
   State_t state;
   bool win;
   bool attack;
+  unsigned long long int hash;
 
   friend bool operator<(const state_value &a, const state_value &b) {
     return a.value > b.value;  // Would like a min heap for child states
@@ -39,6 +42,69 @@ struct state_value {
 };
 
 typedef std::priority_queue<state_value> Ordered_States_t;
+
+static Int_to_Idx TO_IDX = {
+    {1610612736, 29},
+    {1342177280, 28},
+    {1207959552, 27},
+    {1140850688, 26},
+    {1107296256, 25},
+    {1090519040, 24},
+    {1082130432, 23},
+    {1077936128, 22},
+    {1075838976, 21},
+    {1074790400, 20},
+    {1074266112, 19},
+    {1074003968, 18},
+    {1073872896, 17},
+    {1073807360, 16},
+    {1073774592, 15},
+    {1073758208, 14},
+    {1073750016, 13},
+    {1073745920, 12},
+    {1073743872, 11},
+    {1073742848, 10},
+    {1073742336, 9},
+    {1073742080, 8},
+    {1073741952, 7},
+    {1073741888, 6},
+    {1073741856, 5},
+    {1073741840, 4},
+    {1073741832, 3},
+    {1073741828, 2},
+    {1073741826, 1},
+    {1073741825, 0},
+    {536870912,  29},
+    {268435456,  28},
+    {134217728,  27},
+    {67108864,   26},
+    {33554432,   25},
+    {16777216,   24},
+    {8388608,    23},
+    {4194304,    22},
+    {2097152,    21},
+    {1048576,    20},
+    {524288,     19},
+    {262144,     18},
+    {131072,     17},
+    {65536,      16},
+    {32768,      15},
+    {16384,      14},
+    {8192,       13},
+    {4096,       12},
+    {2048,       11},
+    {1024,       10},
+    {512,        9},
+    {256,        8},
+    {128,        7},
+    {64,         6},
+    {32,         5},
+    {16,         4},
+    {8,          3},
+    {4,          2},
+    {2,          1},
+    {1,          0},
+};
 
 static Int_to_Str TO_STR = {
     {1610612736, "a6"},
@@ -1135,6 +1201,30 @@ static const int white_on_move_values[20]{
     900,  // MY QUEEN
     10000  // MY KING
 };
+
+static const int piece_type_zobrist_index[20] {
+    0,  // k
+    1,  // q
+    2,  // b
+    3,  // n
+    4,  // r
+    5,  // p
+    5,  // p
+    5,  // p
+    5,  // p
+    5,  // p
+    6,  // P
+    6,  // P
+    6,  // P
+    6,  // P
+    6,  // P
+    7,  // R
+    8,  // N
+    9,  // B
+    10, // Q
+    11, // K
+};
+
 static std::unordered_map<unsigned int, unsigned int> my_player_index{
     {1, 10},
     {2, 0}
@@ -1149,4 +1239,5 @@ static std::unordered_map<unsigned int, unsigned int> opponent{
     {1, 2},
     {2, 1}
 };
+
 #endif //MOVE_GENERATOR_BITBOARD_TABLES_H

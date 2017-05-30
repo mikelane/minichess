@@ -6,6 +6,7 @@
 #define MOVE_GENERATOR_MOVE_GENERATOR_H
 
 #include "bitboard_tables.h"
+#include "Zobrist_Table.h"
 #include <vector>
 #include <tuple>
 #include <unordered_map>
@@ -18,17 +19,21 @@ bool black_has_been_promoted(int type, unsigned int location);
 
 bool white_has_been_promoted(int type, unsigned int location);
 
-double evaluate_state(State_t state);
+int material_evaluation(State_t state);
 
 State_t parse_input(std::string);
 
-Ordered_States_t get_ordered_children(State_t state);
+Ordered_States_t get_ordered_children(State_t state, unsigned long long int hash, Zobrist_Table &zhasher);
+
+std::vector<State_t> get_children(State_t state);
 
 State_t make_attack(const State_t &state, int attacker_index, int target_index);
 
 State_t make_move(const State_t &state, int mover_index, int dest_pos);
 
-double alpha_Beta(state_value &state, int depth, double alpha, double beta, int &node_count);
+int negamax(State_t state, int depth, int alpha, int beta, Zobrist_Table & zhasher);
+
+int alpha_Beta(state_value &state, int depth, double alpha, double beta, int &node_count, Zobrist_Table &zhasher);
 
 std::string
 get_move(unsigned int time_left, unsigned int *piece_locations, unsigned int on_move, unsigned int empty_locs,

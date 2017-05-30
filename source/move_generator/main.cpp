@@ -3,10 +3,10 @@
 #include <sstream>
 #include "move_generator.h"
 
-//unsigned long long int zobrist_table[]
 int main() {
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REQ);
+  Zobrist_Table zhasher;
 
   std::cerr << "Connecting to server ... " << std::endl;
   socket.connect("tcp://localhost:5555");
@@ -56,16 +56,18 @@ int main() {
 
     // Parse the state vector
     State_t parsed_state = parse_input(game_state_str);
+    unsigned long long int root_hash = zhasher.hash_state(parsed_state);
+    std::cerr << "Root state hash: " << root_hash << std::endl;
 
     double alpha = std::numeric_limits<int>::min();
     double beta = std::numeric_limits<int>::max();
 
-    Ordered_States_t children = get_ordered_children(parsed_state);
+    Ordered_States_t children = get_ordered_children(parsed_state, root_hash, zhasher);
     double best_value = alpha;
     state_value best;
 
     int counter = 0;
-    int depth = 8;
+    int depth = 5;
     std::cerr << "AB Search with depth " << depth << std::endl;
 
     while(!children.empty()) {
@@ -75,7 +77,7 @@ int main() {
       if(!next_child.attack && next_child.move_string == move_hist[0]) {
         continue;
       }
-      double next_child_value = -alpha_Beta(next_child, depth, alpha, beta, ++counter);
+      double next_child_value = -alpha_Beta(next_child, depth, alpha, beta, ++counter, zhasher);
       if(next_child_value > best_value) {
         best_value = next_child_value;
         best = next_child;
