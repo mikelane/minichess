@@ -6,6 +6,8 @@
 #define MOVE_GENERATOR_TTABLE_ENTRY_H
 
 
+#include "bitboard_tables.h"
+
 enum ttable_flag {
   LOWER_BOUND = -1,
   EXACT_VALUE = 0,
@@ -42,7 +44,12 @@ public:
 
   void setFlag(ttable_flag flag);
 
+  const state_value &getState() const;
+
+  void setState(const state_value &state);
+
 private:
+  state_value state;
   unsigned long long int hash{0};
   int depth{0};
   int a{0};

@@ -11,9 +11,9 @@
 
 class ttable {
 public:
-  void insert(Ttable_Entry entry);
+  void insert(Ttable_Entry new_entry);
 
-  Ttable_Entry &get_entry(unsigned long long int hash);
+  Ttable_Entry get_entry(unsigned long long int hash);
 
 private:
   unsigned long long int mask{(1 << 21) - 1};

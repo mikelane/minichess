@@ -82,6 +82,24 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Player.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Player.h">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Random_Player.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Random_Player.h">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Testing_Player.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Testing_Player.h">
+			<Option target="move_generator"/>
+		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Ttable_Entry.cpp">
 			<Option target="move_generator"/>
 		</Unit>
@@ -98,12 +116,6 @@
 			<Option target="move_generator"/>
 		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/main.cpp">
-			<Option target="move_generator"/>
-		</Unit>
-		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/move_generator.cpp">
-			<Option target="move_generator"/>
-		</Unit>
-		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/move_generator.h">
 			<Option target="move_generator"/>
 		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/ttable.cpp">

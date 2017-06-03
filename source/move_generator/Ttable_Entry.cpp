@@ -60,3 +60,11 @@ void Ttable_Entry::setFlag(ttable_flag flag) {
   Ttable_Entry::flag = flag;
 }
 
+const state_value &Ttable_Entry::getState() const {
+  return state;
+}
+
+void Ttable_Entry::setState(const state_value &state) {
+  Ttable_Entry::state = state;
+}
+
