@@ -22,8 +22,8 @@ std::string Random_Player::get_move_string(std::string state_string) {
  * @return
  */
 std::string Random_Player::get_random_move(std::vector<std::string> &move_strings) {
-  int i = get_random_number((int) (moves.size() - 1));
-  return moves[i];
+  int i = get_random_number((int) (move_strings.size() - 1));
+  return move_strings[i];
 }
 
 /**

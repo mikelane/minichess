@@ -95,12 +95,12 @@ class Server:
 
         # Handle error condition
         if '400 no such username' in response:
-            logger.debug('Sending register {} {}'.format(self.username, self.password))
+            self.logger.debug('Sending register {} {}'.format(self.username, self.password))
             self.send('register {} {}'.format(self.username, self.password))
             response = self.imcs_stream.readline()
             print(response)
             if '402 username already exists' in response:
-                logger.error('Error when trying to register with name {}'.format(self.username))
+                self.logger.error('Error when trying to register with name {}'.format(self.username))
                 raise ServerError(response)  # Just die
 
         return self
@@ -162,7 +162,11 @@ class Server:
         result = info_line.split(maxsplit=4)
 
         # When playing as white, the next line is blank. Make sure of that.
-        self.detect_end_game_states(self.imcs_stream.readline())
+        if '105' in info_line:
+            blank = self.imcs_stream.readline()
+            self.logger.debug('Expecting blank line. Received: "{}".'.format(blank))
+            print(blank)
+            self.detect_end_game_states(blank)
 
         return result
 
@@ -186,8 +190,11 @@ class Server:
         server.GameOver
         SystemError
         """
+        if message == '\r\n':
+            return
+
         if 'illegal move' in message:  # Server returned an illegal move warning.
-            logger.debug('Last move sent was an illegal move!')
+            self.logger.debug('Last move sent was an illegal move!')
             raise InvalidMove(message)
         elif '=' in message:  # Server returned a final game message
             if '{} wins'.format(self.color) in message:
@@ -196,11 +203,8 @@ class Server:
                 game_result = 'Game ended in a draw'
             else:
                 game_result = 'You lost!'
-            logger.debug('Raising GameOver exception: {}'.format(game_result))
-            raise GameOver(message)
-        elif '!' not in message:  # Some unknown message happened
-            logger.debug('Some unknown state reached, throwing a SystemError')
-            raise SystemError('Something went wrong with the connection to the minichess server')
+            self.logger.debug('Raising GameOver exception: {}'.format(game_result))
+            raise GameOver(game_result)
 
     def get_opponent_move(self):
         """
@@ -216,7 +220,7 @@ class Server:
         server.InvalidMove
         SystemError
         """
-        logger.debug('Expecting opponent move string. Could get illegal move or game result.')
+        self.logger.debug('Expecting opponent move string. Could get illegal move or game result.')
 
         # This will block waiting for the opponent.
         result = self.imcs_stream.readline().strip()
@@ -257,7 +261,7 @@ class Server:
         List of strings of results
         """
         results = []
-        logger.debug('Requesting available games from the server.')
+        self.logger.debug('Requesting available games from the server.')
         self.send('list')
         data = self.imcs_stream.readline().rstrip()
         print(data)
@@ -292,14 +296,15 @@ class Server:
             else:
                 board += line
 
-        move_number = int(board.split(' '))
+        move_number, _ = board.split(' ')
+        move_number = int(move_number)
 
         # Parse the timer and get my time left in milliseconds
         my_time = re.split('\D', timer_string.split()[1])
         time_left = datetime.timedelta(minutes=float(my_time[0]), seconds=float(my_time[1]),
                                        milliseconds=float(my_time[2]))
 
-        return self.color, move_number, board, time_left.total_seconds() * 1000
+        return [self.color, move_number, board, time_left.total_seconds() * 1000]
 
     def accept_game(self, game_number, color=None):
         """
@@ -325,9 +330,9 @@ class Server:
         opponent_move = None
 
         if result_code == '105':
-            logger.info('Playing as White')
+            self.logger.info('Playing as White')
         else:
-            logger.info('Playing as Black')
+            self.logger.info('Playing as Black')
             opponent_move = self.get_opponent_move()  # Blocking. Also gets empty line.
 
         # The next expected input is the board.
@@ -353,21 +358,24 @@ class Server:
         else:
             self.logger.info('Offering color {}'.format(color))
             self.send('offer {}'.format(color))
+
         message = self.imcs_stream.readline().rstrip()
+        self.detect_end_game_states(message)
         assert message[:3] == '103'
-        while True:
-            message = self.imcs_stream.readline().rstrip()
-            if message:
-                self.logger.info(message)
-                message = message.split()
-                assert message[0] in ['105', '106']
-                if message[0] == '105':
-                    self.imcs_stream.readline()  # blank line
-                    return None, self.imcs_stream.readline().rstrip()  # initial board state
-                if message[0] == '106':
-                    opponent_move = self.imcs_stream.readline().rstrip()[2:]
-                    self.imcs_stream.readline()  # blank line
-                    return opponent_move, self.imcs_stream.readline().rstrip()
+
+        # block waiting for game info
+        result_code, self.color, time_remaining, opponent_time_remaining, message = self.get_game_info()
+
+        opponent_move = None
+
+        if result_code == '105':
+            self.logger.info('Playing as White')
+        else:
+            self.logger.info('Playing as Black')
+            opponent_move = self.get_opponent_move()  # Blocking. Also gets empty line.
+
+        # The next expected input is the board.
+        return [opponent_move] + self.read_board()
 
     def send_move(self, move):
         """

@@ -9,7 +9,7 @@ mgpid=$!
 echo "MOVE GENERATOR PID: $mgpid"
 echo -e "---------------------------\n" >> logs/coutput.log
 
-pypy play.py --debug -p ab
+pypy play.py $opts
 echo -e "---------------------------\n" >> logs/pyoutput.log
 
 echo "Making sure move_generator process has ended."

@@ -73,7 +73,7 @@ int main() {
     std::string move_string{player->get_move_string(game_state_str)};
     zmq::message_t move_message(move_string.size());
     memcpy(move_message.data(), move_string.c_str(), move_string.size());
-    std::cerr << "Responding with: " << std::endl << move_string << std::endl;
+    std::cerr << "Responding with: " << move_string << std::endl;
     socket.send(move_message);
 
 //    unsigned long long int root_hash = zhasher.hash_state(parsed_state);

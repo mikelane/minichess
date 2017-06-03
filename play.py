@@ -4,6 +4,7 @@
 """Minichess AI Player"""
 
 import argparse
+import random
 
 import zmq
 
@@ -93,6 +94,14 @@ class Game:
         message = str(self.socket.recv().decode())
         self.logger.debug('Expecting {}, received: {}'.format(self.player, message.decode()))
 
+    def play(self):
+        if self.auto_offer:
+            self.play_auto_offer_game()
+        elif self.automatic:
+            self.play_automatic_game(opponent=self.opponent)
+        else:
+            self.play_interactive_game()
+
     def game_loop(self, board, time_left):
         """
         Runs the game loop for a maximum of 40 moves
@@ -107,10 +116,12 @@ class Game:
 
         """
         # Game loop
+        parsed_board = parse_board(board, time_left)
+        assert time_left == 300000
+
         for moves_remaining in range(40, 0, -1):
             # Parse the board and send it to the move generator
             parsed_board = parse_board(board, time_left)
-            assert time_left == 300000
             self.logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
             self.socket.send(parsed_board.encode())
             move = str(self.socket.recv().decode())
@@ -118,10 +129,13 @@ class Game:
 
             # Send the move along and get the next board
             try:
-                board, time_left = self.socket.send_move(move)
+                opponent_move, color, move_number, board, time_left = self.imcs_server.send_move(move)
+                print(board)
+                print('Time remaining: {} ms'.format(time_left))
             except (GameOver, InvalidMove, ServerError) as e:
                 self.logger.error(e)
                 print(e)
+                return
 
     def get_all_move_strings(self, board):
         """
@@ -146,8 +160,93 @@ class Game:
         result = str(self.socket.recv().decode()).strip().split('\n')
         return set(result)
 
-    def play_automatic_game(self, type, opponents=None):
-        pass
+    def auto_choose_game(self, opponent=None):
+        """
+        Chooses a game from the available games. If you pass in an opponent or a list of opponents,
+        this chooses a game against that opponent or one of those opponents at random.
+
+        Parameters
+        ----------
+        opponent: A list of opponent names to play against.
+
+        Returns
+        -------
+        Tuple[str, str, str]: game_number, opponent_name, my_color
+
+        """
+        game_found = False
+        chosen_game = None
+
+        while not game_found:
+            available_games_str = self.imcs_server.list_games()
+            available_games = [game.strip().split() for game in available_games_str]
+            indexes_of_desired_opponents = []
+            indexes_of_offers = []
+
+            self.logger.debug('\nThe following games are available:')
+            for i, (game_number, opponent_name, opponent_color, time1, time2, rating, offer_type) in enumerate(
+                    available_games):
+                self.logger.debug(
+                    ' {}. {} {} {} {} {} {} {}'.format(i, game_number, opponent_name, opponent_color, time1, time2,
+                                                       rating, offer_type))
+                if opponent:
+                    if opponent_name in opponent and offer_type == '[offer]':
+                        indexes_of_desired_opponents.append(i)
+                else:
+                    if offer_type == '[offer]':
+                        indexes_of_offers.append(i)
+
+            if opponent:
+                if indexes_of_desired_opponents:
+                    chosen_game = available_games[random.choice(indexes_of_desired_opponents)]
+                    game_found = True
+            else:
+                if indexes_of_offers:
+                    chosen_game = available_games[random.choice(indexes_of_offers)]
+                    game_found = True
+
+        game_number = chosen_game[0]
+        opponent_name = chosen_game[1]
+        opponent_color = chosen_game[2]
+        my_color = 'W' if opponent_color == 'B' else 'B'
+        return game_number, opponent_name, my_color
+
+    def play_auto_offer_game(self, color='?', duration=None):
+        opponent_move, color, move_number, board, time_left = self.imcs_server.offer_game(color, duration)
+
+        print('Received this board:\n{}'.format(board))
+        print('Time Left: {} ms'.format(time_left))
+
+        self.game_loop(board, time_left)
+
+    def play_automatic_game(self, opponent=None):
+        """
+        Play an automatic accepting game
+
+        Parameters
+        ----------
+        opponent: A list of opponent name strings. If none of the opponent names are available,
+                  the player will keep refreshing the list until the opponent is found. So it's
+                  best to use this only when you know a given opponent will be available.
+
+        Returns
+        -------
+        None
+
+        """
+        game_number, opponent_name, self.my_color = self.auto_choose_game(opponent)
+        print('Playing Game {} against {} as color {}'.format(game_number, opponent_name, self.my_color))
+        print('Game log: http://imcs.svcs.cs.pdx.edu/minichess/logs/{}'.format(game_number))
+
+        opponent_move, color, move_number, board, time_left = self.imcs_server.accept_game(game_number)
+        assert color == self.my_color
+        assert move_number == 1
+        assert time_left == 300000
+
+        print('Received this board:\n{}'.format(board))
+        print('Time Left: {} ms'.format(time_left))
+
+        self.game_loop(board, time_left)
 
     def user_choose_game(self):
         """
@@ -155,7 +254,7 @@ class Game:
 
         Returns
         -------
-        List[str]: A list with game number and the opponent's name.
+        Tuple[str, str, str]: A tuple with game number, the opponent's name, and my_color
         """
         available_games = self.imcs_server.list_games()
         game_found = False
@@ -176,7 +275,10 @@ class Game:
                 game_found = False
                 print('That input did not make sense. Try again')
 
-        return available_games[chosen_game].split()
+        game_number, opponent_name, opponent_color, time1, time2, rating, offer_type = available_games[
+            chosen_game].strip().split()
+        my_color = 'W' if opponent_color == 'B' else 'B'
+        return game_number, opponent_name, my_color
 
     def play_interactive_game(self):
         """
@@ -185,23 +287,20 @@ class Game:
         Returns
         -------
         """
-        game_number, opponent_name = self.user_choose_game()
-        self.logger.info('Accepting game {} against {}'.format(game_number, opponent_name))
+        game_number, opponent_name, self.my_color = self.user_choose_game()
+        print('Playing Game {} against {} as color {}'.format(game_number, opponent_name, self.my_color))
+        print('Game log: http://imcs.svcs.cs.pdx.edu/minichess/logs/{}'.format(game_number))
 
         # Accept the game and block until the game board arrives
-        color, move_number, board, time_left = self.imcs_server.accept_game(game_number)
+        opponent_move, color, move_number, board, time_left = self.imcs_server.accept_game(game_number)
         assert move_number == 1
+        assert self.my_color == color
+        assert time_left == 300000
 
-        self.logger.debug('Received this board: \n{}'.format(board))
-        self.logger.debug('Have this many milliseconds left: {}'.format(time_left))
+        print('Received this board:\n{}'.format(board))
+        print('Time remaining: {} ms'.format(time_left))
 
-        # Game loop
-        # for moves_remaining in range(40, -1, -1):
-        #     # Parse the board and send it to the move generator
-        #     parsed_board = parse_board(board, time_left)
-        #     logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
-        #
-        #     # TODO finish this...
+        self.game_loop(board, time_left)
 
 
 if __name__ == '__main__':
@@ -217,9 +316,10 @@ if __name__ == '__main__':
                         help='Specify the type of player to use. Does what\'s on the tin. The tester doesn\'t connect to '
                              'IMCS; instead, it causes the move generator to return all possible moves of a given board.')
     parser.add_argument('-a', '--automatic', action='store_true',
-                        help='Automatically play games. Without this option, you will choose games from a menu.')
+                        help='Play auto-accept games. Without this option, you will choose games from a menu.')
     parser.add_argument('-o', '--opponent', nargs='+',
-                        help='A (space separated) list of player names to play against when playing as automatic player.')
+                        help='A (space separated) list of player names to play against when playing as automatic player. '
+                             'Without this set, the player will pick games at random.')
     parser.add_argument('-ao', '--auto-offer', action='store_true',
                         help='This player connects and offers games automatically.')
     parser.add_argument('-n', '--name', nargs=1,
@@ -232,45 +332,4 @@ if __name__ == '__main__':
         raise PlayerError('If you pass a player name, you must also pass a password')
 
     with Game(args) as game:
-        print('END')
-        # if args.type == 'automatic':
-        #     play_automatic_game(args.auto_type, args.opponent)
-        # else:  # interactive player
-        #     play_interactive_game()
-
-        # Get a listing of available players
-        # try:
-        #     with Server(logger=logger) as s:
-        #         print('END')
-        # except KeyboardInterrupt:
-        #     logger.error('KeyboardInterrupt detected. Closing.')
-
-        #
-        #         # Begin the game loop
-        #         counter = 41
-        #         while counter > 0:
-        #             # Parse the board and send it to the move generator
-        #             parsed_board = parse_board(board, time_left)
-        #             logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
-        #             socket.send(parsed_board.encode())
-        #             move = str(str(socket.recv().decode()))
-        #             logger.debug('Move generator send this move: {}'.format(move))
-        #
-        #             # Send the move along and get the next board
-        #             try:
-        #                 board, time_left = s.send_move(move)
-        #             except AssertionError as e:
-        #                 logger.error('AssertionError'.format(e.message))
-        #                 socket.send('QUIT')
-        #                 logger.error('SHUTTING DOWN')
-        #                 break
-        #
-        #             if board == "GAME OVER":
-        #                 logger.debug('Game Over. Shutting down')
-        #                 socket.send('QUIT')
-        #                 break
-        #             logger.debug('Received this board:\n{}'.format(board))
-        #             logger.debug('Have this many milliseconds left: {}'.format(time_left))
-        #             counter -= 1
-
-        # logger.info('======== GAME OVER ========\n')
+        game.play()
