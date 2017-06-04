@@ -55,8 +55,8 @@ class Game:
             self.automatic = args.automatic
             self.opponent = args.opponent
             self.auto_offer = args.auto_offer
-            self.name = args.name
-            self.password = args.password
+            self.name = args.name[0] if args.name else None
+            self.password = args.password[0] if args.password else None
             self.logger_level = 5 if args.debug else args.verbosity
         else:
             self.player = player
@@ -72,7 +72,7 @@ class Game:
     def __enter__(self):
         if not self.player == '0':
             print('\n====== GAME BEGIN =====\n')
-            self.imcs_server = Server(self.logger).__enter__()
+            self.imcs_server = Server(self.logger, self.name, self.password).__enter__()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
