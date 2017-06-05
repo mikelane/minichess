@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
-set(SOURCE_FILES main.cpp bitboard_tables.h ttable.cpp ttable.h Zobrist_Table.cpp Zobrist_Table.h Ttable_Entry.cpp Ttable_Entry.h Player.cpp Player.h Random_Player.cpp Random_Player.h Testing_Player.cpp Testing_Player.h)
+set(SOURCE_FILES main.cpp bitboard_tables.h  Player.cpp Player.h Random_Player.cpp Random_Player.h Testing_Player.cpp Testing_Player.h Negamax_Player.cpp Negamax_Player.h AB_Player.cpp AB_Player.h)
 add_executable(move_generator ${SOURCE_FILES})
 
 target_include_directories(move_generator PUBLIC ${ZeroMQ_INCLUDE_DIR})

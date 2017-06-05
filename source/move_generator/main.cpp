@@ -4,9 +4,12 @@
 #include "Player.h"
 #include "Random_Player.h"
 #include "Testing_Player.h"
+#include "Negamax_Player.h"
+#include "AB_Player.h"
 
 int main() {
   int exit_code = 0;
+  std::cerr << "TEST" << std::endl;
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REQ);
 //  Zobrist_Table zhasher;
@@ -47,6 +50,12 @@ int main() {
   } else if (player_type == "1") {
     player = new Random_Player();
     std::cerr << "Created a new Random_Player" << std::endl;
+  } else if(player_type == "2") {
+    player = new Negamax_Player();
+    std::cerr << "Created a new Negamax_Player" << std::endl;
+  } else if (player_type == "3") {
+    player = new AB_Player();
+    std::cerr << "Created a new AB_Player" << std::endl;
   } else {
     std::cerr << "Player type not recognized or not implemented! Quitting." << std::endl;
     return 1;

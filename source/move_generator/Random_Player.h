@@ -7,12 +7,13 @@
 
 
 #include <string>
+#include <random>
 #include "Player.h"
 #include "bitboard_tables.h"
 
 class Random_Player : public Player {
 public:
-  std::string get_move_string(std::string state_string);
+  std::string get_move_string(const std::string &state_string);
   std::string get_random_move(std::vector<std::string> & moves);
   int get_random_number(int max);
 

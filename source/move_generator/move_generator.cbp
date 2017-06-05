@@ -82,6 +82,18 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_Player.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_Player.h">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Negamax_Player.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Negamax_Player.h">
+			<Option target="move_generator"/>
+		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Player.cpp">
 			<Option target="move_generator"/>
 		</Unit>
@@ -100,28 +112,10 @@
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Testing_Player.h">
 			<Option target="move_generator"/>
 		</Unit>
-		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Ttable_Entry.cpp">
-			<Option target="move_generator"/>
-		</Unit>
-		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Ttable_Entry.h">
-			<Option target="move_generator"/>
-		</Unit>
-		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Zobrist_Table.cpp">
-			<Option target="move_generator"/>
-		</Unit>
-		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Zobrist_Table.h">
-			<Option target="move_generator"/>
-		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/bitboard_tables.h">
 			<Option target="move_generator"/>
 		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/main.cpp">
-			<Option target="move_generator"/>
-		</Unit>
-		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/ttable.cpp">
-			<Option target="move_generator"/>
-		</Unit>
-		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/ttable.h">
 			<Option target="move_generator"/>
 		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/CMakeLists.txt">

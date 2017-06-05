@@ -10,7 +10,7 @@
  * @param state
  * @return
  */
-std::string Random_Player::get_move_string(std::string state_string) {
+std::string Random_Player::get_move_string(const std::string &state_string) {
   parse_input(state_string);
   std::vector<std::string> all_move_strings = generate_all_move_strings(current_state);
   return get_random_move(all_move_strings);

@@ -11,7 +11,7 @@
 
 class Testing_Player : public Player{
 public:
-  std::string get_move_string(std::string state_string);
+  std::string get_move_string(const std::string &state_string);
 
 };
 

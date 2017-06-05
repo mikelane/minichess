@@ -4,7 +4,7 @@
 
 #include "Testing_Player.h"
 
-std::string Testing_Player::get_move_string(std::string state_string) {
+std::string Testing_Player::get_move_string(const std::string &state_string) {
   std::string result = "";
   parse_input(state_string);
   std::vector<std::string> move_strings = generate_all_move_strings(current_state);
