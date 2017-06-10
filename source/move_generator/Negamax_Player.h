@@ -8,12 +8,15 @@
 
 #include <string>
 #include "Player.h"
+#include "Negamax_Result.h"
 
 class Negamax_Player : public Player {
 public:
   std::string get_move_string(const std::string &state_string);
 
-  move negamax(const move &parent_move, int depth);
+  Negamax_Result negamax(const State_t &state, int depth, int &node_count);
+
+  bool is_terminal(const State_t &state);
 };
 
 

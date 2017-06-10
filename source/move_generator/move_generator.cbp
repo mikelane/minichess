@@ -88,10 +88,22 @@
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_Player.h">
 			<Option target="move_generator"/>
 		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Move.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Move.h">
+			<Option target="move_generator"/>
+		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Negamax_Player.cpp">
 			<Option target="move_generator"/>
 		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Negamax_Player.h">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Negamax_Result.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Negamax_Result.h">
 			<Option target="move_generator"/>
 		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Player.cpp">

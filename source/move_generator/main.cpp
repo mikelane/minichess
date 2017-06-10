@@ -53,9 +53,9 @@ int main() {
   } else if(player_type == "2") {
     player = new Negamax_Player();
     std::cerr << "Created a new Negamax_Player" << std::endl;
-  } else if (player_type == "3") {
-    player = new AB_Player();
-    std::cerr << "Created a new AB_Player" << std::endl;
+//  } else if (player_type == "3") {
+//    player = new AB_Player();
+//    std::cerr << "Created a new AB_Player" << std::endl;
   } else {
     std::cerr << "Player type not recognized or not implemented! Quitting." << std::endl;
     return 1;
@@ -124,7 +124,7 @@ int main() {
     // Transposition Table Store
 //    t.setValid(true);
 //    t.setHash(root_hash);
-//    t.setValue(best_value);
+//    t.set_value(best_value);
 //    if (best_value <= alpha) {
 //      t.setFlag(ttable_flag::UPPER_BOUND);
 //    } else if (best_value >= beta) {
@@ -150,7 +150,7 @@ int main() {
 //    move_hist[1] = best.attack ? "" : best.move_string;
 //
 //    zmq::message_t move_message((void *) result.str().c_str(), result.str().size(), NULL);
-//    std::cerr << "Sending move: " << (const char *) move_message.data() << std::endl;
+//    std::cerr << "Sending Move: " << (const char *) move_message.data() << std::endl;
 //    socket.send(move_message);
   }
 

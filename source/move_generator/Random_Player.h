@@ -18,8 +18,8 @@ public:
   int get_random_number(int max);
 
 private:
-  std::random_device rd;
-  std::mt19937 mt{rd()};
+//  std::random_device rd;
+//  std::mt19937 mt{rd()};
   std::vector<std::string> moves{};
 };
 
