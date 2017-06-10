@@ -2,6 +2,7 @@
 // Created by Michael Lane on 6/9/17.
 //
 
+#include <tuple>
 #include "Move.h"
 
 Move &Move::operator=(const Move &other) {

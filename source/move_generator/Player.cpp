@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <iterator>
 #include "Move.h"
 #include "Player.h"
 
