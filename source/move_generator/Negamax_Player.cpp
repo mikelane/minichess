@@ -46,6 +46,17 @@ std::string Negamax_Player::get_move_string(const std::string &state_string) {
 Negamax_Result Negamax_Player::negamax(const State_t &state, int depth, int &node_count) {
   ++node_count;
   if (depth == 0 || is_terminal(state)) {
+    Negamax_Result result(eval(state), "");
+    // Keep track of shortest win, longest loss
+    if(depth > 0) {
+      if (state[PLAYER_ON_MOVE] == 1 && state[WHITE_KING] == 0) {
+        // White loses, multiply the score and depth
+        result.set_value(depth * result.get_value());
+      } else if (state[PLAYER_ON_MOVE] == 2 && state[BLACK_KING] == 0) {
+        // Black loses, multiply the score and depth
+        result.set_value(depth * result.get_value());
+      }
+    }
     return Negamax_Result(eval(state), "");
   }
 
@@ -64,11 +75,5 @@ Negamax_Result Negamax_Player::negamax(const State_t &state, int depth, int &nod
     }
   }
   return result;
-}
-
-bool Negamax_Player::is_terminal(const State_t &state) {
-  return (state[MOVE_NUMBER] == 41)
-         || (state[BLACK_KING] == 0)
-         || (state[WHITE_KING] == 0);
 }
 

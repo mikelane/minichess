@@ -53,9 +53,9 @@ int main() {
   } else if(player_type == "2") {
     player = new Negamax_Player();
     std::cerr << "Created a new Negamax_Player" << std::endl;
-//  } else if (player_type == "3") {
-//    player = new AB_Player();
-//    std::cerr << "Created a new AB_Player" << std::endl;
+  } else if (player_type == "3") {
+    player = new AB_Player();
+    std::cerr << "Created a new AB_Player" << std::endl;
   } else {
     std::cerr << "Player type not recognized or not implemented! Quitting." << std::endl;
     return 1;

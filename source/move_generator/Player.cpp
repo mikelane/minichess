@@ -103,7 +103,9 @@ std::vector<Move> Player::generate_all_moves(const State_t &state) {
     }
   }
   std::shuffle(all_attacks.begin(), all_attacks.end(), mt);
+  std::sort(all_attacks.begin(), all_attacks.end());
   std::shuffle(all_moves.begin(), all_moves.end(), mt);
+  std::sort(all_moves.begin(), all_moves.end());
   result.insert(result.end(), all_attacks.begin(), all_attacks.end());
   result.insert(result.end(), all_moves.begin(), all_moves.end());
   return result;
@@ -393,15 +395,26 @@ int Player::eval(const State_t &state) {
   // subtract 25 * number of attacks from result
   result += -25 * num_opponent_attacks;
 
-  // number of opponent's moves
-  int num_opponent_moves = calculate_number_of_moves(state, opponent_player_index[state[PLAYER_ON_MOVE]]);
-  result += -10 * num_opponent_moves;
-
   // Number of attacks I can make from this position
   int num_defended = calculate_number_of_attacks(state, my_player_index[state[PLAYER_ON_MOVE]], false);
   // Add back in 25 for each of the defenses I can mount
   result += 25 * num_defended;
 
+  // number of opponent's moves
+  int num_opponent_moves = calculate_number_of_moves(state, opponent_player_index[state[PLAYER_ON_MOVE]]);
+  result += -10 * num_opponent_moves;
+
+  // number of my moves
+  int num_my_moves = calculate_number_of_moves(state, my_player_index[state[PLAYER_ON_MOVE]]);
+  result += 10 * num_my_moves;
+
   return result;
 }
+
+bool Player::is_terminal(const State_t &state) {
+  return (state[MOVE_NUMBER] == 41)
+         || (state[BLACK_KING] == 0)
+         || (state[WHITE_KING] == 0);
+}
+
 

@@ -9,11 +9,13 @@
 #include <string>
 #include "bitboard_tables.h"
 #include "Player.h"
+#include "Negamax_Result.h"
 
 class AB_Player : public Player {
-private:
-  std::string best_move_string{"INVALID"};
-  int best_move_value{std::numeric_limits<int>::min()};
+public:
+  std::string get_move_string(const std::string &state_string);
+
+  Negamax_Result negamax(const State_t &state, int depth, int alpha, int beta, int &node_count);
 };
 
 

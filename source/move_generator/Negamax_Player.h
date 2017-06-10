@@ -15,8 +15,6 @@ public:
   std::string get_move_string(const std::string &state_string);
 
   Negamax_Result negamax(const State_t &state, int depth, int &node_count);
-
-  bool is_terminal(const State_t &state);
 };
 
 

@@ -56,6 +56,8 @@ protected:
   int number_of_nodes = 0;
   std::random_device rd;
   std::mt19937 mt{rd()};
+
+  bool is_terminal(const State_t &state);
 };
 
 
