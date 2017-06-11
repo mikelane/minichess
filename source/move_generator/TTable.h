@@ -10,9 +10,12 @@
 #include "TTable_Entry.h"
 #include "Zobrist_Table.h"
 
+/**
+ * The class that manages the transposition tables.
+ */
 class TTable {
 public:
-  void insert(TTable_Entry new_entry);
+  void insert(TTable_Entry &new_entry, const State_t &state);
 
   TTable_Entry get_entry(const State_t &state);
 

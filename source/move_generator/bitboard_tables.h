@@ -2,6 +2,11 @@
 // Created by Michael Lane on 6/2/17.
 // This file requires the use of the --std=c++11 flag when compiling.
 //
+// This file will definitely take some time to wrap your head around. As a tip
+// look at the keys and values in the unordered_maps as 30-bit binary values and
+// arrange those values in a 6x5 rectangle. Values that are greater than 1 << 30
+// are promoted pawns.
+//
 
 #ifndef BITBOARD_TABLES_H
 #define BITBOARD_TABLES_H
@@ -3417,12 +3422,12 @@ static std::unordered_map<unsigned int, unsigned int> opponent{
     {2, 1}
 };
 
-static std::unordered_map<unsigned int, unsigned int> my_king_index {
+static std::unordered_map<unsigned int, unsigned int> my_king_index{
     {1, 19},
     {2, 0}
 };
 
-static std::unordered_map<unsigned int, unsigned int> opponent_king_index {
+static std::unordered_map<unsigned int, unsigned int> opponent_king_index{
     {1, 0},
     {2, 19}
 };

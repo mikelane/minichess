@@ -9,8 +9,17 @@
 #include "Move.h"
 #include "bitboard_tables.h"
 
+/**
+ * The pure abstract base player.
+ */
 class Player {
 public:
+  /**
+   * All child classes of the Player class must implement this function.
+   *
+   * @param state_string
+   * @return
+   */
   virtual std::string get_move_string(const std::string &state_string) = 0;
 
   State_t make_move(const State_t &state, const Move &move);

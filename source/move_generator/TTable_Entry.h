@@ -14,6 +14,9 @@ enum ttable_flag {
   UPPER_BOUND = 1,
 };
 
+/**
+ * The class that manages the transposition table entries.
+ */
 class TTable_Entry {
 public:
   unsigned long long int getHash() const;

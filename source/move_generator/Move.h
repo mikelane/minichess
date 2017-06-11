@@ -56,10 +56,10 @@ public:
   bool operator>=(const Move &rhs) const;
 
   /**
- * Negates the value. Handy for negamax function.
- *
- * @return
- */
+   * Negates the value. Handy for negamax function.
+   *
+   * @return
+   */
   Move operator-() const;
 };
 

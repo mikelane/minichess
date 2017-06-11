@@ -64,6 +64,7 @@ Negamax_Result AB_ID_TT_Player::negamax(const State_t &state, int depth, int alp
   }
 
   int alpha_orig = alpha;
+  State_t best_state;
 
   TTable_Entry ttentry = table.get_entry(state);
 
@@ -108,6 +109,7 @@ Negamax_Result AB_ID_TT_Player::negamax(const State_t &state, int depth, int alp
   result.set_move_string(child.get_move_string());
 
   int best_value = result.get_value();
+  best_state = child_state;
 
   // if result's value > beta, return child result
   if (best_value > beta) {
@@ -130,6 +132,7 @@ Negamax_Result AB_ID_TT_Player::negamax(const State_t &state, int depth, int alp
     if (child_result.get_value() > best_value) {
       best_value = child_result.get_value();
       result = child_result;
+      best_state = child_state;
     }
 
     alpha = std::max(alpha, child_result.get_value());
@@ -144,7 +147,7 @@ Negamax_Result AB_ID_TT_Player::negamax(const State_t &state, int depth, int alp
     ttentry.setFlag(EXACT_VALUE);
   }
   ttentry.setDepth(depth);
-  table.insert(ttentry);
+  table.insert(ttentry, best_state);
 
   return result;
 }

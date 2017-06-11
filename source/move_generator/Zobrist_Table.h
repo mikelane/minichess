@@ -11,6 +11,9 @@
 
 typedef std::vector<unsigned int> State_t;
 
+/**
+ * The class that manages the zobrist table and hashing the states.
+ */
 class Zobrist_Table {
 
 public:

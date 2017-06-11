@@ -5,11 +5,14 @@
 #ifndef MOVE_GENERATOR_NEGAMAX_RESULT_H
 #define MOVE_GENERATOR_NEGAMAX_RESULT_H
 
-
 #include <string>
 #include <utility>
 #include <random>
 
+/**
+ * A class to help deal with the results of the negamax function. It is
+ * used to return relevant information other than the value.
+ */
 class Negamax_Result {
 public:
   Negamax_Result() = default;
