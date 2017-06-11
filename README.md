@@ -39,8 +39,37 @@ In order to connect to the IMCS server, you must have a settings file. The game 
 
 ### Playing a Game ###
 
-Currently, this AI only supports accepting games and you must do it manually. This is still in the debugging stage, so the `play` bash script will start the c++ file as well as the python file with the `--debug` and `--player ab` flags. So all you have to do to start playing a game is to execute the following command:
+A minichess game is played via a bash script which starts the move generator back end as a background process and starts the front end with the CLI options you provided. To get help with the command line options, use `./play -h`. What you'll see is this:
 
-    ./play
+```
+usage: play.py [-h] [--debug] [-v]
+               [-p {tester,random,negamax,ab,abid,abidttable}] [-a]
+               [-o OPPONENT [OPPONENT ...]] [-ao] [-n NAME] [-pw PASSWORD]
 
-You'll see a menu of available games. Enter the number that corresponds with the game you want to play and hit enter and the game will play to completion.
+Minichess player:
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --debug               Turn on debugging mode
+  -v, --verbosity       Increase output verbosity, blank shows DEBUG only, -v
+                        shows ERROR and CRITICAL. -vv shows WARNING, ERROR,
+                        and CRITICAL. -vvv shows INFO, WARNING, ERROR, and
+                        CRITICAL. -vvvv shows all levels including DEBUG.
+  -p {tester,random,negamax,ab,abid,abidttable}, --player {tester,random,negamax,ab,abid,abidttable}
+                        Specify the type of player to use. Does what's on the
+                        tin. The tester doesn't connect to IMCS; instead, it
+                        causes the move generator to return all possible moves
+                        of a given board.
+  -a, --automatic       Play auto-accept games. Without this option, you will
+                        choose games from a menu.
+  -o OPPONENT [OPPONENT ...], --opponent OPPONENT [OPPONENT ...]
+                        A (space separated) list of player names to play
+                        against when playing as automatic player. Without this
+                        set, the player will pick games at random.
+  -ao, --auto-offer     This player connects and offers games automatically.
+  -n NAME, --name NAME  The username to use for this player. Set this if you
+                        want to override the settings.ini
+  -pw PASSWORD, --password PASSWORD
+                        The password to use with the overridden username.
+                        Required if --name option is set.
+```
