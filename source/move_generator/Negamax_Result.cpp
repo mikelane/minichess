@@ -41,3 +41,20 @@ Negamax_Result &Negamax_Result::operator=(const Negamax_Result &other) {
   }
   return *this;
 }
+
+bool Negamax_Result::isLoss() const {
+  return loss;
+}
+
+void Negamax_Result::setLoss(bool loss) {
+  Negamax_Result::loss = loss;
+}
+
+bool Negamax_Result::isWin() const {
+  return win;
+}
+
+void Negamax_Result::setWin(bool win) {
+  Negamax_Result::win = win;
+}
+

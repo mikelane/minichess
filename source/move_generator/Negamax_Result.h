@@ -32,8 +32,18 @@ public:
 
   Negamax_Result operator-();
 
+  bool isLoss() const;
+
+  void setLoss(bool loss);
+
+  bool isWin() const;
+
+  void setWin(bool win);
+
 private:
   int value{0};
+  bool loss{false};
+  bool win{false};
   std::string move_string;
 };
 

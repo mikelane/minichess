@@ -3417,4 +3417,14 @@ static std::unordered_map<unsigned int, unsigned int> opponent{
     {2, 1}
 };
 
+static std::unordered_map<unsigned int, unsigned int> my_king_index {
+    {1, 19},
+    {2, 0}
+};
+
+static std::unordered_map<unsigned int, unsigned int> opponent_king_index {
+    {1, 0},
+    {2, 19}
+};
+
 #endif  // BITBOARD_TABLES_H

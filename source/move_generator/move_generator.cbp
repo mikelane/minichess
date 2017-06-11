@@ -82,6 +82,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_ID_Player.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_ID_Player.h">
+			<Option target="move_generator"/>
+		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_Player.cpp">
 			<Option target="move_generator"/>
 		</Unit>

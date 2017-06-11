@@ -54,6 +54,7 @@ protected:
 
   State_t current_state{};
   int number_of_nodes = 0;
+  unsigned int my_player_color = 0;
   std::random_device rd;
   std::mt19937 mt{rd()};
 

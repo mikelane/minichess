@@ -13,33 +13,32 @@ game = None
 
 def setup():
     global game
-    game = play.Game(player='0')
+    game = play.Game(player='4')
 
 def teardown():
     global game
     game.socket.send('QUIT'.encode())
-    game.__exit__(None, None, None)
 
-def test_board_inputs():
-    print('RUNNING!')
-    path = os.getcwd() + '/genmoves-tests'
-    for input_file in glob.glob('{}/*.in'.format(path)):
-        with open(input_file, 'r') as f:
-            yield get_all_moves, input_file, f.read()
-
-def get_all_moves(input_filename, board_string):
-    global game
-    print(input_filename)
-    output_filename = input_filename[:-3] + '.out'
-    print(output_filename)
-    print(board_string)
-    with open(output_filename, 'r') as ofile:
-        actual_moves = set(ofile.read().strip().split('\n'))
-    print(actual_moves)
-    move_strings = game.get_all_move_strings(board_string)
-    print(move_strings)
-    print('difference: {}'.format(move_strings - actual_moves))
-    assert actual_moves == move_strings
+# def test_board_inputs():
+#     print('RUNNING!')
+#     path = os.getcwd() + '/genmoves-tests'
+#     for input_file in glob.glob('{}/*.in'.format(path)):
+#         with open(input_file, 'r') as f:
+#             yield get_all_moves, input_file, f.read()
+#
+# def get_all_moves(input_filename, board_string):
+#     global game
+#     print(input_filename)
+#     output_filename = input_filename[:-3] + '.out'
+#     print(output_filename)
+#     print(board_string)
+#     with open(output_filename, 'r') as ofile:
+#         actual_moves = set(ofile.read().strip().split('\n'))
+#     print(actual_moves)
+#     move_strings = game.get_all_move_strings(board_string)
+#     print(move_strings)
+#     print('difference: {}'.format(move_strings - actual_moves))
+#     assert actual_moves == move_strings
 
 # def test_move_generator():
 #     logger.debug('Path: {}'.format(os.getcwd()))
@@ -78,3 +77,10 @@ def get_all_moves(input_filename, board_string):
 #     move = str(socket.recv().decode())
 #     logger.debug('Move generator send this move: {}'.format(move))
 #     print('-'*100)
+
+def test_generate_moves():
+    game.socket.send('268435456 8388608 0 0 0 16777216 4194304 1048576 0 0 512 256 0 0 0 2 0 4096 0 32 14 1 298844160 774892765 173346.0'.encode())
+    logger.debug('Sending 268435456 8388608 0 0 0 16777216 4194304 1048576 0 0 512 256 0 0 0 2 0 4096 0 32 14 1 298844160 774892765 173346.0')
+    move = str(socket.recv().decode())
+    logger.debug('Move generator sent this move: {}'.format(move))
+    print('-'*100)

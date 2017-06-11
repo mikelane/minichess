@@ -9,6 +9,7 @@
 
 std::string AB_Player::get_move_string(const std::string &state_string) {
   State_t root_state = parse_input(state_string);
+  my_player_color = root_state[PLAYER_ON_MOVE];
   Move current_move;
 
   int num_nodes = 0;
@@ -54,17 +55,6 @@ std::string AB_Player::get_move_string(const std::string &state_string) {
 Negamax_Result AB_Player::negamax(const State_t &state, int depth, int alpha, int beta, int &node_count) {
   ++node_count;
   if (depth == 0 || is_terminal(state)) {
-    Negamax_Result result(eval(state), "");
-    // Keep track of shortest win, longest loss
-    if(depth > 0) {
-      if (state[PLAYER_ON_MOVE] == 1 && state[WHITE_KING] == 0) {
-        // White loses, multiply the score and depth
-        result.set_value(depth * result.get_value());
-      } else if (state[PLAYER_ON_MOVE] == 2 && state[BLACK_KING] == 0) {
-        // Black loses, multiply the score and depth
-        result.set_value(depth * result.get_value());
-      }
-    }
     return Negamax_Result(eval(state), "");
   }
 

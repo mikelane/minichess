@@ -6,10 +6,10 @@
 #include "Testing_Player.h"
 #include "Negamax_Player.h"
 #include "AB_Player.h"
+#include "AB_ID_Player.h"
 
 int main() {
   int exit_code = 0;
-  std::cerr << "TEST" << std::endl;
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REQ);
 //  Zobrist_Table zhasher;
@@ -32,7 +32,7 @@ int main() {
   // 2 - Negamax
   // 3 - aB pruning
   // 4 - aB pruning with iterative deepening
-  // 4 - aB pruning with iterative deepending and TTables
+  // 5 - aB pruning with iterative deepending and TTables
   zmq::message_t response;
   socket.recv(&response);
   std::string player_type = std::string(static_cast<char *>(response.data()), response.size());
@@ -56,6 +56,9 @@ int main() {
   } else if (player_type == "3") {
     player = new AB_Player();
     std::cerr << "Created a new AB_Player" << std::endl;
+  } else if (player_type == "4") {
+    player = new AB_ID_Player();
+    std::cerr << "Created a new AB_ID_Player" << std::endl;
   } else {
     std::cerr << "Player type not recognized or not implemented! Quitting." << std::endl;
     return 1;

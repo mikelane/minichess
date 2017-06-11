@@ -3,6 +3,7 @@
 //
 
 #include <sstream>
+#include <iostream>
 #include <algorithm>
 #include <iterator>
 #include "Move.h"
@@ -79,6 +80,9 @@ std::vector<std::string> Player::generate_all_move_strings(const State_t &state)
 }
 
 std::vector<Move> Player::generate_all_moves(const State_t &state) {
+  if (state[BLACK_KING] == 0 || state[WHITE_KING] == 0) {
+    std::cerr << "Trying to generate moves from a terminal state!" << std::endl;
+  }
   std::vector<Move> result, all_attacks, all_moves;
   // Get the starting index for the player on Move
   int mover_index = my_player_index[state[PLAYER_ON_MOVE]];
@@ -109,6 +113,14 @@ std::vector<Move> Player::generate_all_moves(const State_t &state) {
   std::sort(all_moves.begin(), all_moves.end());
   result.insert(result.end(), all_attacks.begin(), all_attacks.end());
   result.insert(result.end(), all_moves.begin(), all_moves.end());
+  if (result.size() < 1) {
+    std::cerr << "Failed to generate any legal moves!" << std::endl;
+    std::cerr << "State: " << std::endl;
+    for (unsigned int val : state) {
+      std::cerr << val << " ";
+    }
+    std::cerr << std::endl;
+  }
   return result;
 }
 
@@ -193,7 +205,10 @@ Player::generate_attacks(const State_t &state, int mover_index, int shadow_mask,
   for (unsigned int end_pos : type_to_attack[mover_index][state[mover_index]]) {
     if (end_pos & state[LOCATION_OF_OPPONENTS] & shadow_mask) {
       int target_index = 0;
-      for (; target_index < 20 && end_pos != state[target_index]; ++target_index);
+      for (; target_index < 20 && end_pos != (((1 << 30) -1) & state[target_index]); ++target_index);
+      if (target_index > 19) {
+        //pass
+      }
       State_t new_state = make_attack(state, mover_index, target_index);
       result.push_back(
           Move(
@@ -234,10 +249,31 @@ State_t Player::make_attack(const State_t &state, int attacker_index, int target
   State_t result = state;
   // xor attacker with itself, zeros it
   result[attacker_index] ^= result[attacker_index];
-  // xor attacker with target moves the attacker
-  result[attacker_index] ^= result[target_index];
+  // xor attacker with target moves the attacker (mask off promoted pawn)
+  result[attacker_index] ^= (result[target_index] & ((1 << 30) - 1));
   // xor target with itself zeros it
   result[target_index] ^= result[target_index];
+
+  if((((0 <= attacker_index) && (attacker_index < 5))
+      || ((15 <= attacker_index) && (attacker_index < 20)))
+      && (result[attacker_index] >= (1 << 30))) {
+    std::cerr << std::endl << "-------------------------------------------------------------" << std::endl;
+    std::cerr << "make attack error!" << std::endl;
+    std::cerr << "state[" << attacker_index << "]: " << state[attacker_index] << std::endl;
+    std::cerr << " state[" << target_index << "]: " << state[target_index] << std::endl;
+    std::cerr << "result[" << attacker_index << "]: " << result[attacker_index] << std::endl;
+    std::cerr << " result[" << target_index << "]: " << result[target_index] << std::endl;
+
+    std::cerr << "Incoming state: ";
+    for (unsigned int v : state) {
+      std::cerr << v << " ";
+    }
+    std::cerr << "Resulting state: ";
+    for (unsigned int v : result) {
+      std::cerr << v << " ";
+    }
+    std::cerr << std::endl;
+  }
 
   // Bookkeeping. Update the player on Move. Update the opponents location. Update the empty cells
   result[PLAYER_ON_MOVE] = opponent[result[PLAYER_ON_MOVE]];
