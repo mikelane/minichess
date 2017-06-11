@@ -88,6 +88,12 @@
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_ID_Player.h">
 			<Option target="move_generator"/>
 		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_ID_TT_Player.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_ID_TT_Player.h">
+			<Option target="move_generator"/>
+		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/AB_Player.cpp">
 			<Option target="move_generator"/>
 		</Unit>
@@ -124,10 +130,28 @@
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Random_Player.h">
 			<Option target="move_generator"/>
 		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/TTable.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/TTable.h">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/TTable_Entry.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/TTable_Entry.h">
+			<Option target="move_generator"/>
+		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Testing_Player.cpp">
 			<Option target="move_generator"/>
 		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Testing_Player.h">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Zobrist_Table.cpp">
+			<Option target="move_generator"/>
+		</Unit>
+		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/Zobrist_Table.h">
 			<Option target="move_generator"/>
 		</Unit>
 		<Unit filename="/Users/Mike/dev/minichess/source/move_generator/bitboard_tables.h">

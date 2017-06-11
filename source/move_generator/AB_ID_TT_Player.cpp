@@ -4,9 +4,9 @@
 
 #include <iostream>
 #include <cassert>
-#include "AB_ID_Player.h"
+#include "AB_ID_TT_Player.h"
 
-std::string AB_ID_Player::get_move_string(const std::string &state_string) {
+std::string AB_ID_TT_Player::get_move_string(const std::string &state_string) {
   State_t root_state = parse_input(state_string);
   // Set the time limit for this move
   set_time_limit(root_state);
@@ -20,7 +20,7 @@ std::string AB_ID_Player::get_move_string(const std::string &state_string) {
 
   Negamax_Result root_result = negamax(root_state, depth, alpha, beta, num_nodes);
 
-  while(root_state[MOVE_NUMBER] + ++depth <= 41) {
+  while (root_state[MOVE_NUMBER] + ++depth <= 41) {
     Negamax_Result candidate_result = negamax(root_state, depth, alpha, beta, num_nodes);
     // Sense timeout conditions
     if (get_millisecond_time() > timelimit || candidate_result.get_move_string() == "XXX") {
@@ -49,7 +49,7 @@ std::string AB_ID_Player::get_move_string(const std::string &state_string) {
   return root_result.get_move_string();
 }
 
-Negamax_Result AB_ID_Player::negamax(const State_t &state, int depth, int alpha, int beta, int &node_count) {
+Negamax_Result AB_ID_TT_Player::negamax(const State_t &state, int depth, int alpha, int beta, int &node_count) {
   using namespace std::chrono;
   ++node_count;
   ++timecounter;
@@ -59,8 +59,25 @@ Negamax_Result AB_ID_Player::negamax(const State_t &state, int depth, int alpha,
     timecache = get_millisecond_time();
   }
 
-  if(timecache > timelimit) {
+  if (timecache > timelimit) {
     return Negamax_Result(0, "XXX");
+  }
+
+  int alpha_orig = alpha;
+
+  TTable_Entry ttentry = table.get_entry(state);
+
+  if (ttentry.isValid() && ttentry.getDepth() >= depth) {
+    if (ttentry.getFlag() == EXACT_VALUE) {
+      return Negamax_Result(ttentry.getValue(), "");
+    } else if (ttentry.getFlag() == LOWER_BOUND) {
+      alpha = std::max(alpha, ttentry.getValue());
+    } else if (ttentry.getFlag() == UPPER_BOUND) {
+      beta = std::min(beta, ttentry.getValue());
+    }
+    if (alpha >= beta) {
+      return Negamax_Result(ttentry.getValue(), "");
+    }
   }
 
   if (depth == 0 || is_terminal(state)) {
@@ -117,6 +134,17 @@ Negamax_Result AB_ID_Player::negamax(const State_t &state, int depth, int alpha,
 
     alpha = std::max(alpha, child_result.get_value());
   }
+
+  ttentry.setValue(result.get_value());
+  if (result.get_value() <= alpha_orig) {
+    ttentry.setFlag(UPPER_BOUND);
+  } else if (result.get_value() >= beta) {
+    ttentry.setFlag(LOWER_BOUND);
+  } else {
+    ttentry.setFlag(EXACT_VALUE);
+  }
+  ttentry.setDepth(depth);
+  table.insert(ttentry);
+
   return result;
 }
-

@@ -7,13 +7,14 @@
 #include "Negamax_Player.h"
 #include "AB_Player.h"
 #include "AB_ID_Player.h"
+#include "AB_ID_TT_Player.h"
 
 int main() {
   int exit_code = 0;
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REQ);
 //  Zobrist_Table zhasher;
-//  ttable TTable;
+//  TTable TTable;
 
   std::cerr << "Connecting to server ... " << std::endl;
   socket.connect("tcp://localhost:5555");
@@ -42,7 +43,7 @@ int main() {
     return 1;
   }
 
-  Player * player;
+  Player *player;
 
   if (player_type == "0") {
     player = new Testing_Player();
@@ -50,7 +51,7 @@ int main() {
   } else if (player_type == "1") {
     player = new Random_Player();
     std::cerr << "Created a new Random_Player" << std::endl;
-  } else if(player_type == "2") {
+  } else if (player_type == "2") {
     player = new Negamax_Player();
     std::cerr << "Created a new Negamax_Player" << std::endl;
   } else if (player_type == "3") {
@@ -59,6 +60,9 @@ int main() {
   } else if (player_type == "4") {
     player = new AB_ID_Player();
     std::cerr << "Created a new AB_ID_Player" << std::endl;
+  } else if (player_type == "5") {
+    player = new AB_ID_TT_Player();
+    std::cerr << "Created a new AB_ID_TT_Player" << std::endl;
   } else {
     std::cerr << "Player type not recognized or not implemented! Quitting." << std::endl;
     return 1;
@@ -92,7 +96,7 @@ int main() {
 //    std::cerr << "Root state hash: " << root_hash << std::endl;
 //
 //     This will (and should) get a blank and invalid Ttable_entry.
-//    Ttable_Entry t = TTable.get_entry(root_hash);
+//    TTable_Entry t = TTable.get_entry(root_hash);
 //
 //    int alpha = std::numeric_limits<int>::min();
 //    int beta = std::numeric_limits<int>::max();

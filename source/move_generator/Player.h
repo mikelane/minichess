@@ -57,8 +57,15 @@ protected:
   unsigned int my_player_color = 0;
   std::random_device rd;
   std::mt19937 mt{rd()};
+  long long timecounter{0ll};
+  long long timecache{0ll};
+  long long timelimit{0ll};
 
   bool is_terminal(const State_t &state);
+
+  void set_time_limit(const State_t &state);
+
+  long long int get_millisecond_time();
 };
 
 

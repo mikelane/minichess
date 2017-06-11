@@ -455,3 +455,58 @@ bool Player::is_terminal(const State_t &state) {
 }
 
 
+/**
+ * This uses a little help from Stack Overflow:
+ * https://stackoverflow.com/questions/31255486/c-how-do-i-convert-a-stdchronotime-point-to-long-and-back
+ * @param state
+ * @return
+ */
+void Player::set_time_limit(const State_t &state) {
+  using namespace std::chrono;
+  // Get current time with precision of milliseconds
+  auto now = time_point_cast<milliseconds>(system_clock::now());
+  // Calculate the time limits;
+  if (state[MOVE_NUMBER] <= 5) {
+    timelimit = now.time_since_epoch().count() + 5000ll;
+    return;
+  }
+
+  if(state[MOVE_NUMBER] <= 10) {
+    timelimit = now.time_since_epoch().count() + 15000ll;
+    return;
+  }
+
+  if(state[MOVE_NUMBER] <= 15) {
+    timelimit = now.time_since_epoch().count() + 10000ll;
+    return;
+  }
+
+  if(state[MOVE_NUMBER] <= 20) {
+    timelimit = now.time_since_epoch().count() + 9000ll;
+    return;
+  }
+
+  if(state[MOVE_NUMBER] <= 25) {
+    timelimit = now.time_since_epoch().count() + 4000ll;
+    return;
+  }
+
+  if(state[MOVE_NUMBER] <= 30) {
+    timelimit = now.time_since_epoch().count() + 5000ll;
+    return;
+  }
+
+  if(state[MOVE_NUMBER] <= 35) {
+    timelimit = now.time_since_epoch().count() + 6000ll;
+    return;
+  }
+
+  timelimit = now.time_since_epoch().count() + 4000ll;
+}
+
+long long Player::get_millisecond_time() {
+  using namespace std::chrono;
+  // Get current time with precision of milliseconds
+  auto now = time_point_cast<milliseconds>(system_clock::now());
+  return now.time_since_epoch().count();
+}
