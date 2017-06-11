@@ -4,6 +4,8 @@ PROGNAME=$(basename $0)
 
 opts=$@
 
+mkdir -p logs
+
 nohup ./source/move_generator/bin/move_generator >>logs/coutput.log 2>&1 &
 mgpid=$!
 echo "MOVE GENERATOR PID: $mgpid"
