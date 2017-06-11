@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <cassert>
+#include <chrono>
 #include "AB_ID_TT_Player.h"
 
 std::string AB_ID_TT_Player::get_move_string(const std::string &state_string) {
