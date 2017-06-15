@@ -211,14 +211,20 @@ Player::generate_attacks(const State_t &state, int mover_index, int shadow_mask,
         //pass
       }
       State_t new_state = make_attack(state, mover_index, target_index);
+      int attack_effectiveness_penalty = 0;
+      if (new_state[PLAYER_ON_MOVE] == 1) {
+        attack_effectiveness_penalty = white_on_move_values[target_index] + white_on_move_values[mover_index];
+      } else {
+        attack_effectiveness_penalty = black_on_move_values[target_index] + black_on_move_values[mover_index];
+      }
       result.push_back(
           Move(
-              move_string + TO_STR[end_pos],  // move_string
-              mover_index,                    // mover_idx
-              target_index,                   // target_idx
-              end_pos,                        // end_pos
-              eval(new_state),                // value
-              true                            // attack
+              move_string + TO_STR[end_pos],                   // move_string
+              mover_index,                                     // mover_idx
+              target_index,                                    // target_idx
+              end_pos,                                         // end_pos
+              eval(new_state) - attack_effectiveness_penalty,  // value
+              true                                             // attack
           ));
     }
   }
@@ -375,6 +381,7 @@ int Player::calculate_material_value(const State_t &state) {
 
 int Player::calculate_heuristic_value(const State_t &state) {
   int result = 0;
+  // Add in the heuristic value of my players' positions
   for (int i = my_player_index[state[PLAYER_ON_MOVE]], end = i + 10; i < end; ++i) {
     if (state[MOVE_NUMBER] <= 10) {
       result += begin_heuristic_dispatch[i][state[i]];
@@ -383,6 +390,33 @@ int Player::calculate_heuristic_value(const State_t &state) {
     } else {
       result += end_heuristic_dispatch[i][state[i]];
     }
+  }
+
+  // Deduct the heuristic value of the opposing players' positions
+  for (int i = opponent_player_index[state[PLAYER_ON_MOVE]], end = i + 10; i < end; ++i) {
+    if (state[MOVE_NUMBER] <= 10) {
+      result -= begin_heuristic_dispatch[i][state[i]];
+    } else if (state[MOVE_NUMBER] <= 25) {
+      result -= middle_heuristic_dispatch[i][state[i]];
+    } else {
+      result -= end_heuristic_dispatch[i][state[i]];
+    }
+  }
+
+  unsigned int black_pawns = state[5] | state[6] | state[7] | state[8] | state[9];
+  unsigned int white_pawns = state[10] | state[11] | state[12] | state[13] | state[14];
+
+  unsigned int my_pawns = (state[PLAYER_ON_MOVE] == 1) ? white_pawns : black_pawns;
+  unsigned int opponent_pawns = (state[PLAYER_ON_MOVE] == 1) ? black_pawns : white_pawns;
+
+  // Deduct heuristic value of my pawns on the same file
+  for (int i=0, mask=0x21084210; i < 5; ++i, mask >>= 1) {
+    result = (__builtin_popcount(mask & my_pawns) > 1) ? result - 20 : result;
+  }
+
+  // Add in heuristic value of opponent's pawns on the same file
+  for (int i=0, mask=0x21084210; i < 5; ++i, mask >>= 1) {
+    result = (__builtin_popcount(mask & my_pawns) > 1) ? result + 20 : result;
   }
   return result;
 }
@@ -468,41 +502,41 @@ void Player::set_time_limit(const State_t &state) {
   auto now = time_point_cast<milliseconds>(system_clock::now());
   // Calculate the time limits;
   if (state[MOVE_NUMBER] <= 5) {
-    timelimit = now.time_since_epoch().count() + 5000ll;
+    timelimit = now.time_since_epoch().count() + 6333ll;
     return;
   }
 
   if(state[MOVE_NUMBER] <= 10) {
-    timelimit = now.time_since_epoch().count() + 15000ll;
+    timelimit = now.time_since_epoch().count() + 8333ll;
     return;
   }
 
   if(state[MOVE_NUMBER] <= 15) {
-    timelimit = now.time_since_epoch().count() + 10000ll;
+    timelimit = now.time_since_epoch().count() + 12733ll;
     return;
   }
 
   if(state[MOVE_NUMBER] <= 20) {
-    timelimit = now.time_since_epoch().count() + 9000ll;
+    timelimit = now.time_since_epoch().count() + 10733ll;
     return;
   }
 
   if(state[MOVE_NUMBER] <= 25) {
-    timelimit = now.time_since_epoch().count() + 4000ll;
+    timelimit = now.time_since_epoch().count() + 9733ll;
     return;
   }
 
   if(state[MOVE_NUMBER] <= 30) {
-    timelimit = now.time_since_epoch().count() + 5000ll;
+    timelimit = now.time_since_epoch().count() + 8733ll;
     return;
   }
 
   if(state[MOVE_NUMBER] <= 35) {
-    timelimit = now.time_since_epoch().count() + 6000ll;
+    timelimit = now.time_since_epoch().count() + 3333ll;
     return;
   }
 
-  timelimit = now.time_since_epoch().count() + 4000ll;
+  timelimit = now.time_since_epoch().count() + 2333ll;
 }
 
 long long Player::get_millisecond_time() {

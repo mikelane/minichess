@@ -116,11 +116,34 @@ class Game:
 
         """
         # Game loop
-        parsed_board = parse_board(board, time_left)
-        assert time_left == 300000
-
         for moves_remaining in range(40, 0, -1):
-            # Parse the board and send it to the move generator
+            if self.my_color == 'W':
+                if self.move_number == 1:
+                    # First move of white should be e2-e3
+                    opponent_move, color, self.move_number, board, time_left = self.imcs_server.send_move('e2-e3')
+                    print(board)
+                    print('Time remaining: {} ms'.format(time_left))
+                    continue
+                elif self.move_number == 2:
+                    # Second move of white should be d1-e2
+                    opponent_move, color, self.move_number, board, time_left = self.imcs_server.send_move('d1-e2')
+                    print(board)
+                    print('Time remaining: {} ms'.format(time_left))
+                    continue
+            else:
+                if self.move_number == 1:
+                    # Trying the same, but opposite opening moves
+                    opponent_move, color, self.move_number, board, time_left = self.imcs_server.send_move('a5-a4')
+                    print(board)
+                    print('Time remaining: {} ms'.format(time_left))
+                    continue
+                elif self.move_number == 2:
+                    opponent_move, color, self.move_number, board, time_left = self.imcs_server.send_move('b6-a5')
+                    print(board)
+                    print('Time remaining: {} ms'.format(time_left))
+                    continue
+
+                # Parse the board and send it to the move generator
             parsed_board = parse_board(board, time_left)
             self.logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
             self.socket.send(parsed_board.encode())
@@ -129,12 +152,13 @@ class Game:
 
             # Send the move along and get the next board
             try:
-                opponent_move, color, move_number, board, time_left = self.imcs_server.send_move(move)
+                opponent_move, color, self.move_number, board, time_left = self.imcs_server.send_move(move)
                 print(board)
                 print('Time remaining: {} ms'.format(time_left))
             except (GameOver, InvalidMove, ServerError) as e:
                 self.logger.error(e)
                 print(e)
+                self.socket.send('QUIT'.encode())
                 return
 
     def get_all_move_strings(self, board):
@@ -238,9 +262,9 @@ class Game:
         print('Playing Game {} against {} as color {}'.format(game_number, opponent_name, self.my_color))
         print('Game log: http://imcs.svcs.cs.pdx.edu/minichess/logs/{}'.format(game_number))
 
-        opponent_move, color, move_number, board, time_left = self.imcs_server.accept_game(game_number)
+        opponent_move, color, self.move_number, board, time_left = self.imcs_server.accept_game(game_number)
         assert color == self.my_color
-        assert move_number == 1
+        assert self.move_number == 1
         assert time_left == 300000
 
         print('Received this board:\n{}'.format(board))
