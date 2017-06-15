@@ -31,8 +31,8 @@ class Game:
         'abidttable': '5'
     }
 
-    def __init__(self, args=None, player=None, local=False, automatic=False, opponent=None, auto_offer=False, name=None,
-                 password=None):
+    def __init__(self, args=None, player=None, local=False, automatic=False, opponent=None, offer=False, color='?',
+                 name=None, password=None):
         """
         Construct a player. Prefer constructor parameters over command line arguments. The parameters
         are the same as what is defined in the parser above.
@@ -54,7 +54,8 @@ class Game:
             self.player = self.player_type_dict[args.player]
             self.automatic = args.automatic
             self.opponent = args.opponent
-            self.auto_offer = args.auto_offer
+            self.offer = args.offer
+            self.offer_color = args.color
             self.name = args.name[0] if args.name else None
             self.password = args.password[0] if args.password else None
             self.logger_level = 5 if args.debug else args.verbosity
@@ -62,7 +63,8 @@ class Game:
             self.player = player
             self.automatic = automatic
             self.opponent = opponent
-            self.auto_offer = auto_offer
+            self.offer = offer
+            self.offer_color = color
             self.name = name
             self.password = password
             self.logger_level = 5
@@ -95,8 +97,8 @@ class Game:
         self.logger.debug('Expecting {}, received: {}'.format(self.player, message.decode()))
 
     def play(self):
-        if self.auto_offer:
-            self.play_auto_offer_game()
+        if self.offer:
+            self.play_auto_offer_game(color=self.offer_color)
         elif self.automatic:
             self.play_automatic_game(opponent=self.opponent)
         else:
@@ -143,7 +145,7 @@ class Game:
                     print('Time remaining: {} ms'.format(time_left))
                     continue
 
-                # Parse the board and send it to the move generator
+                    # Parse the board and send it to the move generator
             parsed_board = parse_board(board, time_left)
             self.logger.debug('Sending this to the move generator: \n{}'.format(parsed_board))
             self.socket.send(parsed_board.encode())
@@ -236,7 +238,7 @@ class Game:
         return game_number, opponent_name, my_color
 
     def play_auto_offer_game(self, color='?', duration=None):
-        opponent_move, color, move_number, board, time_left = self.imcs_server.offer_game(color, duration)
+        opponent_move, color, self.move_number, board, time_left = self.imcs_server.offer_game(color, duration)
 
         print('Received this board:\n{}'.format(board))
         print('Time Left: {} ms'.format(time_left))
@@ -265,7 +267,6 @@ class Game:
         opponent_move, color, self.move_number, board, time_left = self.imcs_server.accept_game(game_number)
         assert color == self.my_color
         assert self.move_number == 1
-        assert time_left == 300000
 
         print('Received this board:\n{}'.format(board))
         print('Time Left: {} ms'.format(time_left))
@@ -344,8 +345,10 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--opponent', nargs='+',
                         help='A (space separated) list of player names to play against when playing as automatic player. '
                              'Without this set, the player will pick games at random.')
-    parser.add_argument('-ao', '--auto-offer', action='store_true',
+    parser.add_argument('--offer', action='store_true',
                         help='This player connects and offers games automatically.')
+    parser.add_argument('-c', '--color', default='?', choices=['?', 'W', 'B'],
+                        help='Specify the color to offer.')
     parser.add_argument('-n', '--name', nargs=1,
                         help='The username to use for this player. Set this if you want to override the settings.ini')
     parser.add_argument('-pw', '--password', nargs=1,
