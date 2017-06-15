@@ -133,12 +133,12 @@ class Game:
             else:
                 if self.move_number == 1:
                     # Trying the same, but opposite opening moves
-                    opponent_move, color, self.move_number, board, time_left = self.imcs_server.send_move('a5-a4')
+                    opponent_move, color, self.move_number, board, time_left = self.imcs_server.send_move('c5-c4')
                     print(board)
                     print('Time remaining: {} ms'.format(time_left))
                     continue
                 elif self.move_number == 2:
-                    opponent_move, color, self.move_number, board, time_left = self.imcs_server.send_move('b6-a5')
+                    opponent_move, color, self.move_number, board, time_left = self.imcs_server.send_move('c6-c5')
                     print(board)
                     print('Time remaining: {} ms'.format(time_left))
                     continue
