@@ -238,7 +238,7 @@ class Game:
         return game_number, opponent_name, my_color
 
     def play_auto_offer_game(self, color='?', duration=None):
-        opponent_move, color, self.move_number, board, time_left = self.imcs_server.offer_game(color, duration)
+        opponent_move, self.my_color, self.move_number, board, time_left = self.imcs_server.offer_game(color, duration)
 
         print('Received this board:\n{}'.format(board))
         print('Time Left: {} ms'.format(time_left))
@@ -302,8 +302,8 @@ class Game:
 
         game_number, opponent_name, opponent_color, time1, time2, rating, offer_type = available_games[
             chosen_game].strip().split()
-        my_color = 'W' if opponent_color == 'B' else 'B'
-        return game_number, opponent_name, my_color
+        self.my_color = 'W' if opponent_color == 'B' else 'B'
+        return game_number, opponent_name, self.my_color
 
     def play_interactive_game(self):
         """
